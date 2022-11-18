@@ -1,4 +1,4 @@
-ARTIFACT = RARS
+ARTIFACT = RARS-COMP4900
 
 #Build architecture/variant string, possible values: x86, armv7le, etc...
 PLATFORM ?= x86_64
