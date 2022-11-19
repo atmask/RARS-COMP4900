@@ -8,6 +8,7 @@
  *      Author: benmask
  */
 #include <stdio.h>
+#include <constants.h>
 
 void runServer();
 void readData();

@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <sys/neutrino.h>
 #include <stdlib.h>
-
+#include <constants.h>
 
 int main(int argc, char **argv){
 	printf("TempManager\n");
