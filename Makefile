@@ -8,6 +8,7 @@ BUILD_PROFILE ?= debug
 
 CONFIG_NAME ?= $(PLATFORM)-$(BUILD_PROFILE)
 OUTPUT_DIR = build/$(CONFIG_NAME)
+SRC_DIR = src
 TARGET = $(OUTPUT_DIR)/$(ARTIFACT)
 
 #Compiler definitions
@@ -51,16 +52,29 @@ SRCS = $(call rwildcard, src, c)
 OBJS = $(addprefix $(OUTPUT_DIR)/,$(addsuffix .o, $(basename $(SRCS))))
 
 #Compiling rule
-$(OUTPUT_DIR)/%.o: %.c
+$(OUTPUT_DIR)/%.o: $(SRC_DIR)/%.c
 	@mkdir -p $(dir $@)
 	$(CC) -c $(DEPS) -o $@ $(INCLUDES) $(CCFLAGS_all) $(CCFLAGS) $<
 
+
 #Linking rule
-$(TARGET):$(OBJS)
-	$(LD) -o $(TARGET) $(LDFLAGS_all) $(LDFLAGS) $(OBJS) $(LIBS_all) $(LIBS)
+#$(TARGET):$(OBJS)
+#	$(LD) -o $(TARGET) $(LDFLAGS_all) $(LDFLAGS) $(OBJS) $(LIBS_all) $(LIBS)
+#$(TARGET): $(OUTPUT_DIR)/RARS-COMP4900.o
+#$(OUTPUT_DIR)/RARS-COMP4900.o: RARS-COMP4900.c
+#	@mkdir -p $(dir $@)
+#	$(CC) -c $(DEPS) -o $@ $(INCLUDES) $(CCFLAGS_all) $(CCFLAGS) $<
+
+#
+$(OUTPUT_DIR)/RARS-COMP4900: $(OUTPUT_DIR)/RARS-COMP4900.o
+$(OUTPUT_DIR)/temperature_sensor: $(OUTPUT_DIR)/temperature_sensor.o
+
 
 #Rules section for default compilation and linking
-all: $(TARGET)
+basenames = $(basename $(SRCS))
+BINS = $(addprefix $(OUTPUT_DIR)/,$(foreach F,$(basenames),$(lastword $(subst src/, ,$F))))
+all: $(BINS)
+
 
 clean:
 	rm -fr $(OUTPUT_DIR)
