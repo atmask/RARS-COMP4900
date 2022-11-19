@@ -57,18 +57,13 @@ $(OUTPUT_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) -c $(DEPS) -o $@ $(INCLUDES) $(CCFLAGS_all) $(CCFLAGS) $<
 
 
-#Linking rule
-#$(TARGET):$(OBJS)
-#	$(LD) -o $(TARGET) $(LDFLAGS_all) $(LDFLAGS) $(OBJS) $(LIBS_all) $(LIBS)
-#$(TARGET): $(OUTPUT_DIR)/RARS-COMP4900.o
-#$(OUTPUT_DIR)/RARS-COMP4900.o: RARS-COMP4900.c
-#	@mkdir -p $(dir $@)
-#	$(CC) -c $(DEPS) -o $@ $(INCLUDES) $(CCFLAGS_all) $(CCFLAGS) $<
+## Linking rule
+#Right now trying a general fule but may need go specific
+SHARED_LINKING_DEPS = constants.h
 
-#
-$(OUTPUT_DIR)/RARS-COMP4900: $(OUTPUT_DIR)/RARS-COMP4900.o
-$(OUTPUT_DIR)/temperature_sensor: $(OUTPUT_DIR)/temperature_sensor.o
-
+#$(OUTPUT_DIR)/RARS-COMP4900: $(OUTPUT_DIR)/RARS-COMP4900.o
+#$(OUTPUT_DIR)/temperature_sensor: $(OUTPUT_DIR)/temperature_sensor.o
+$(OUTPUT_DIR)/%: $(OUTPUT_DIR)/%.o $(SHARED_LINKING_DEPS)
 
 #Rules section for default compilation and linking
 basenames = $(basename $(SRCS))
