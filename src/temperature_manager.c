@@ -2,7 +2,8 @@
 #include <unistd.h>
 #include <sys/neutrino.h>
 #include <stdlib.h>
-#include <constants.h>
+
+#include "constants.h"
 
 int main(int argc, char **argv){
 	printf("TempManager\n");
@@ -16,12 +17,14 @@ int main(int argc, char **argv){
 	myMessage_t msg;
 	*/
 
-	int chid, rcvid;
-	name_attach_t* attach;
-	attach = name_attach(NULL, "TempMan", 0);
 
-	//create a channel
-	chid = ChannelCreate(0);
+//
+//	int chid, rcvid;
+//	name_attach_t* attach;
+//	attach = name_attach(NULL, "TempMan", 0);
+//
+//	//create a channel
+//	chid = ChannelCreate(0);
 
 
 	//spawn thermometer
@@ -34,5 +37,6 @@ int main(int argc, char **argv){
 		rcvid = MsgReceive(attach->chid, &msg, sizeof(msg), NULL);
 
 	 }*/
+
 	return EXIT_SUCCESS;
 }

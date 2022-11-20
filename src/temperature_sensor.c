@@ -8,13 +8,21 @@
  *      Author: benmask
  */
 #include <stdio.h>
-#include <constants.h>
+#include <unistd.h>
+#include <sys/neutrino.h>
+#include <stdlib.h>
+
+#include "constants.h"
 
 void runServer();
 void readData();
 
 int main(void) {
-	printf("Starting temp sensor");
+	FILE *log_file;
+	log_file = fopen("/tmp/sensor.log", "w");
+
+	fprintf(log_file, "Starting temp sensor\n");
+
 	float tempData;
 
 	/*Get the fd from the args passed in*/
