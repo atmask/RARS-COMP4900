@@ -14,11 +14,17 @@ int main(void) {
 		perror("pipe(temp_sensor_fd) failed.");
 		exit(EXIT_FAILURE);
 	}
-	char *args[] = {"/tmp/temperature_sensor", NULL};
 
-	printf("here\n");
+
 	/*Create the mock drivers for the sensors and pass the read end of the pipe*/
-	if(spawn("/tmp/temperature_sensor", 0, NULL, NULL, args, NULL) == -1){
+
+	// Temp mock data to read till the envSimulator is in place
+	FILE *write_file = fdopen(temp_sensor_fd[1], "w");
+	fprintf(write_file, "24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 31.0");
+
+	char *ts_args[] = {"/tmp/temperature_sensor", NULL};
+	int ts_fd_map[] = {temp_sensor_fd[0]};
+	if(spawn("/tmp/temperature_sensor", 1, ts_fd_map, NULL, ts_args, NULL) == -1){
 		perror("Failed to spawn temp sensor");
 		exit(EXIT_FAILURE);
 	}
