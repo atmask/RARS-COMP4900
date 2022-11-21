@@ -5,7 +5,6 @@
  *	Another thread waits on Client messages for data and returns the data
  *
  *  Created on: Nov. 18, 2022
- *      Author: benmask
  */
 #include <stdio.h>
 #include <unistd.h>
