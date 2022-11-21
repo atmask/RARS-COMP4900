@@ -21,27 +21,18 @@ int main(void) {
 	// Temp mock data to read till the envSimulator is in place
 	FILE *write_file = fdopen(temp_sensor_fd[1], "w");
 	fprintf(write_file, "24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 31.0");
-
 	char *ts_args[] = {"/tmp/temperature_sensor", NULL};
 	int ts_fd_map[] = {temp_sensor_fd[0]};
 	if(spawn("/tmp/temperature_sensor", 1, ts_fd_map, NULL, ts_args, NULL) == -1){
 		perror("Failed to spawn temp sensor");
 		exit(EXIT_FAILURE);
 	}
-//
-//
-//	//arguments for spawned children
-//	char                *args[] = {};
-//	//int                 status;
-//	pid_t               pid;
-//	struct inheritance  inherit;
-//	inherit.flags = 0;
-//
-//	if ((pid = spawn("TempManager", 0, NULL, &inherit, args, environ)) == -1)
-//		    perror("spawn() failed");
-//
-//
-//
+
+	char *tm_args[] = {"/tmp/temperature_manager", NULL};
+	if(spawn("/tmp/temperature_manager", 0, NULL, NULL, tm_args, NULL) == -1){
+		perror("Failed to spawn temp manager");
+		exit(EXIT_FAILURE);
+	}
 
 
 

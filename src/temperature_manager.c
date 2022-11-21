@@ -2,41 +2,40 @@
 #include <unistd.h>
 #include <sys/neutrino.h>
 #include <stdlib.h>
+#include <pthread.h>
+#include <sched.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <errno.h>
+#include <process.h>
+#include <sys/iofunc.h>
+#include <sys/dispatch.h>
+
 
 #include "constants.h"
 
 int main(int argc, char **argv){
-	printf("TempManager\n");
+	FILE *log_file;
+	log_file = fopen("/tmp/temp_manager.log", "w");
+	fprintf(log_file, "Starting temp manager\n");
 
-	/*
-	typedef union
-	{
-		struct _pulse pulse;
-	    char rmsg [MAX_STRING_LEN +1];
-	} myMessage_t;
-	myMessage_t msg;
-	*/
+	int coid;
 
+	/* Connect to the temperature sensor server */
+	coid = name_open(TEMPERATURE_SERVER, 0);
+	if (coid == -1){
+		fprintf(log_file, "Failed to connect to server. Code: %s\n", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 
-//
-//	int chid, rcvid;
-//	name_attach_t* attach;
-//	attach = name_attach(NULL, "TempMan", 0);
-//
-//	//create a channel
-//	chid = ChannelCreate(0);
+	/* Build the GET message */
+	get_snsr_data__msg_t get_msg;
+	get_msg.type = GET_DATA;
+	resp_snsr_data_msg_t resp;
+	MsgSend(coid, &get_msg, sizeof(get_msg), &resp, sizeof(resp));
+	fprintf(log_file, "GOT DATA: %.2f", resp.data);
 
-
-	//spawn thermometer
-
-	//spawn drivers (AC, Heater)
-
-
-	/*while(1){
-
-		rcvid = MsgReceive(attach->chid, &msg, sizeof(msg), NULL);
-
-	 }*/
-
+	name_close(coid);
 	return EXIT_SUCCESS;
 }
