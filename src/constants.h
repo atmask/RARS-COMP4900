@@ -18,6 +18,7 @@
 
 // Server names
 #define TEMPERATURE_SERVER "temperature_sensor"
+#define DISPLAY "display"
 
 
 // Message types
