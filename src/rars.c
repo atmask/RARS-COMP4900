@@ -7,7 +7,7 @@
 int main(void) {
 	printf("Hello World!!!\n"); /* prints Hello World!!! */
 
-	pid_t rars_pids[2];
+	pid_t rars_pids[5];
 	int temp_sensor_fd[2];// 0=RD 1=WR
 
 	/* Create the pipes representing sensors*/
@@ -36,14 +36,37 @@ int main(void) {
 	}
 
 
+	/*****************************************************************************
+	 * Create the temp actuators
+	 *****************************************************************************/
+	char *ac_args[] = {"/tmp/air_conditioner_actuator", NULL};
+	rars_pids[1] = spawn("/tmp/air_conditioner_actuator", 0, NULL, NULL, ac_args, NULL);
+	if(rars_pids[1] == -1){
+		perror("Failed to spawn A/C actuator");
+		exit(EXIT_FAILURE);
+	}
+
+	char *heater_args[] = {"/tmp/heater_actuator", NULL};
+	rars_pids[2] = spawn("/tmp/heater_actuator", 0, NULL, NULL, heater_args, NULL);
+	if(rars_pids[2] == -1){
+		perror("Failed to spawn heater actuator");
+		exit(EXIT_FAILURE);
+	}
+
+	char *temp_act_args[] = {"/tmp/temperature_actuator", NULL};
+	rars_pids[3] = spawn("/tmp/temperature_actuator", 0, NULL, NULL, temp_act_args, NULL);
+	if(rars_pids[1] == -1){
+		perror("Failed to spawn temp actuator");
+		exit(EXIT_FAILURE);
+	}
 
 	/*****************************************************************************
 	 * Create the temp manager clients for the sensors
 	 *****************************************************************************/
 
 	char *tm_args[] = {"/tmp/temperature_manager", NULL};
-	rars_pids[1] = spawn("/tmp/temperature_manager", 0, NULL, NULL, tm_args, NULL);
-	if(rars_pids[1] == -1){
+	rars_pids[4] = spawn("/tmp/temperature_manager", 0, NULL, NULL, tm_args, NULL);
+	if(rars_pids[4] == -1){
 		perror("Failed to spawn temp manager");
 		exit(EXIT_FAILURE);
 	}

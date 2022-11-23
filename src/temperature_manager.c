@@ -23,7 +23,7 @@ int main(int argc, char **argv){
 	int coid;
 
 	/* Connect to the temperature sensor server */
-	coid = name_open(TEMPERATURE_SERVER, 0);
+	coid = name_open(TEMPERATURE_SENSOR_SERVER, 0);
 	if (coid == -1){
 		fprintf(log_file, "Failed to connect to server. Code: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);

@@ -147,7 +147,7 @@ void *runServer(void *args){
 
 
 	// register our name for a channel
-	attach = name_attach(NULL, TEMPERATURE_SERVER, 0);
+	attach = name_attach(NULL, TEMPERATURE_SENSOR_SERVER, 0);
 	if (attach == NULL){
 		fprintf(log_file, "Could not start server");
 		exit(EXIT_FAILURE);
