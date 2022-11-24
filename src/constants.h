@@ -18,7 +18,7 @@
 
 // Server names
 #define TEMPERATURE_SERVER "temperature_sensor"
-#define DISPLAY "display"
+#define DISPLAY_SERVER "display"
 
 
 // Message types
@@ -35,6 +35,12 @@ typedef struct resp_snsr_data_msg {
 	float		data;
 } resp_snsr_data_msg_t;
 
+
+
+/*******************
+ *  PULSE CODES
+ *******************/
+#define TEMP_DATA (_PULSE_CODE_MINAVAIL+1)
 
 
 /*Actuator Constants*/

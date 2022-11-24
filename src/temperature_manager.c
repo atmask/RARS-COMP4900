@@ -38,7 +38,8 @@ int main(int argc, char **argv){
 	/* Connect to the temperature sensor server */
 	coid = name_open(TEMPERATURE_SERVER, 0);
 	if (coid == -1){
-		fprintf(log_file, "Failed to connect to server. Code: %s\n", strerror(errno));
+		fprintf(log_file, "Failed to connect to server: %s\n", strerror(errno));
+		fflush(log_file);
 		exit(EXIT_FAILURE);
 	}
 
@@ -49,7 +50,16 @@ int main(int argc, char **argv){
 		get_msg.type = GET_DATA;
 		resp_snsr_data_msg_t resp;
 		MsgSend(coid, &get_msg, sizeof(get_msg), &resp, sizeof(resp));
-		fprintf(log_file, "GOT DATA: %.2f", resp.data);
+		fprintf(log_file, "GOT DATA: %.2f\n", resp.data);
+		fflush(log_file);
+
+		/* Build Pulse for the display manager */
+		if(MsgSendPulse(DISPLAY_SERVER, -1, TEMP_DATA, resp.data) == 1){
+			fprintf(log_file, "Failed to connect to send data pulse to display: %s\n", strerror(errno));
+			fflush(log_file);
+			exit(EXIT_FAILURE);
+		}
+		fprintf(log_file, "Pulsed DATA: %.2f. Now sleeping 2 seconds\n", resp.data);
 		fflush(log_file);
 		sleep(2);
 

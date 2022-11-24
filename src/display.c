@@ -41,42 +41,48 @@ int main(int argc, char **argv){
 	//ignore the bin name but convert all the pids to int and kill with with SIGTERM
 	for(int i=1; i<argc; i++){
 		pid_t pid = atoi(argv[i]);
-		printf("Killing pid: %d", pid);
+		printf("Killing pid: %d\n", pid);
 		kill(pid, SIGTERM);
 	}
 
 	exit(EXIT_SUCCESS);
 
 
-//	typedef union
-//	{
-//		struct _pulse pulse;
-//		uint16_t type;//could be useful
-//	} myMsg_t;
-//	myMsg_t msg;
-//	int rcvid;
-//
-//	FILE *log_file;
-//	struct _msg_info info;
-//	log_file = fopen("/tmp/display.log", "w");
-//	fprintf(log_file, "Starting display;\n");
-//
-//	printf("RARS starting\nAttempting to Start Systems\n\n");
-//
-//	name_attach_t* attach;
-//	attach = name_attach(NULL, DISPLAY, 0);
-//	if (attach == NULL){
-//		fprintf(log_file, "Could not start display\n");
-//		printf("Display error. Closing display\n");
-//		exit(EXIT_FAILURE);
-//	}
-//
-//	while (1) {
-//		//receive message
-//		rcvid = MsgReceive(attach->chid, &msg, sizeof(msg), &info);
-//		 if (0 == rcvid) {
+	name_attach_t* attach;
+	struct _pulse msg;
+	int rcvid;
+
+	FILE *log_file;
+	log_file = fopen("/tmp/display.log", "w");
+	fprintf(log_file, "Starting display;\n");
+
+	attach = name_attach(NULL, DISPLAY_SERVER, 0);
+	if (attach == NULL){
+		fprintf(log_file, "Could not start display\n");
+		exit(EXIT_FAILURE);
+	}
+
+	while (running) {
+		//receive message
+		rcvid = MsgReceive(attach->chid, &msg, sizeof(msg), &info);
+		 if (0 == rcvid) {
+
+			 switch(msg.code){
+			 case _PULSE_CODE_DISCONNECT:
+				fprintf(log_file, "Received disconnect from pulse\n");
+				fflush(log_file);
+				if (-1 == ConnectDetach(rbuf.pulse.scoid)) {
+					perror("ConnectDetach");
+				}
+				break;
+			 case TEMP_DATA:
+
+			 default:
+				 fprintf(log_file, "Unexpectes pulse code: %d", msg.code);
+				 fflush(log_file);
+			 }
 //			//received a pulse
-//			 if (msg.pulse.code == _PULSE_CODE_DISCONNECT){
+//			 if (msg.code == _PULSE_CODE_DISCONNECT){
 //				printf("Process %d is gone\n", info.pid);
 //				ConnectDetach(msg.pulse.scoid);
 //				//break;
@@ -84,9 +90,13 @@ int main(int argc, char **argv){
 //				fprintf(log_file, "Message: %s\nFrom process: %d\n",msg.pulse.value.sival_ptr,info.pid);//might cause errors with sival_ptr
 //				printf("Update: %s\n",msg.pulse.value.sival_ptr);//currently no compiler errors
 //			}
-//
-//		}
-//	}
+
+		} else {
+			fprintf(log_file, "Unexpected msg. Replying OK\n");
+			fflush(log_file);
+			MsgReply(rcvid, EOK, "OK", sizeof("OK"));
+		}
+	}
 
 }
 
