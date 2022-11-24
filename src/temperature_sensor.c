@@ -45,7 +45,6 @@ pthread_mutex_t temp_data_mutex = PTHREAD_MUTEX_INITIALIZER;
 /* Functions*/
 void *runServer();
 void *readData();
-void set_exit_flag(int);
 
 /*
  * Structs for passing data to thread functions
@@ -77,8 +76,6 @@ typedef union
  */
 int main(void) {
 
-	//signal(SIGTERM, set_exit_flag);
-
 	FILE *log_file1;
 	log_file1 = fopen("/tmp/sensor_reader.log", "w");
 	fprintf(log_file1, "Starting temp sensor\n");
@@ -88,8 +85,11 @@ int main(void) {
 	fprintf(log_file2, "Starting temp sensor\n");
 
 
-	char temperature_data[BUFFER_SIZE];
+//	char temperature_data[BUFFER_SIZE];
+	char temperature_data[] = {'1', '2', 0};
+
 	pthread_t read_thread, server_thread;
+
 
 	/*Spawn readData and runServer threads*/
 	struct thread_args server_args;
@@ -119,18 +119,21 @@ void *readData(void *args){
 
 	while(running){
 		fprintf(log_file, "get mutex\n");
+		fflush(log_file);
 		/* Lock the mutex */
 		pthread_mutex_lock(&temp_data_mutex);
 
 		/* Scanf to get the temp
 		 * N.B. Scanf reads up the whitespace
 		 * */
-		fscanf(stdin, "%s", temp_data);
+		//fscanf(stdin, "%s", temp_data);
 
 		fprintf(log_file, "Read data: %s\n", temp_data);
+		fflush(log_file);
 
 		if(strcmp(temp_data, "31.0") == 0){
 			fprintf(log_file, "Done reading\n");
+			fflush(log_file);
 			break;
 		}
 		pthread_mutex_unlock(&temp_data_mutex);
@@ -139,7 +142,7 @@ void *readData(void *args){
 	}
 
 	/* Cleanup */
-	//fclose(log_file);
+	fclose(log_file);
 	return 0;
 }
 
@@ -159,9 +162,11 @@ void *runServer(void *args){
 	attach = name_attach(NULL, TEMPERATURE_SERVER, 0);
 	if (attach == NULL){
 		fprintf(log_file, "Could not start server. %s\n", strerror(errno));
+		fflush(log_file);
 		exit(EXIT_FAILURE);
 	}
 	fprintf(log_file, "Starting Server\n");
+	fflush(log_file);
 
 
 	while (running) {
@@ -173,6 +178,7 @@ void *runServer(void *args){
 			 switch(rbuf.pulse.code){
 			 case _PULSE_CODE_DISCONNECT:
 				printf("Received disconnect from pulse\n");
+				fflush(log_file);
 				if (-1 == ConnectDetach(rbuf.pulse.scoid)) {
 					perror("ConnectDetach");
 				}
@@ -188,22 +194,25 @@ void *runServer(void *args){
 				// Get the mutex and return the temp data
 				pthread_mutex_lock(&temp_data_mutex);
 
-				printf("Return data: %s", temp_data);
+				fprintf(log_file, "Return data: %s\n", temp_data);
+				fflush(log_file);
 				/* Build the response */
 				resp_snsr_data_msg_t resp;
-				resp.data = atof(temp_data);
+				resp.data = atoi(temp_data);
 
 				/* Free the mutex so it does not get reply blocked*/
 				pthread_mutex_unlock(&temp_data_mutex);
 
-				fprintf(log_file, "Sending %s converted to %f", temp_data, resp.data);
+				fprintf(log_file, "Sending %s converted to %f\n", temp_data, resp.data);
+				fflush(log_file);
 
 				/* Send data back */
 				MsgReply(rcvid, EOK, &resp, sizeof(resp));
 
 				break;
 			default:
-				printf("Unknown message type\n");
+				fprintf(log_file, "Unknown message type\n");
+				fflush(log_file);
 				MsgReply(rcvid, EOK, "OK", sizeof("OK"));
 			}
 		}
@@ -211,14 +220,9 @@ void *runServer(void *args){
 
 	/* Cleanup */
 	name_detach(attach, 0);
-	//fclose(log_file);
+	fclose(log_file);
 	return 0;
 }
-
-void set_exit_flag(int sig_no){
-	running=0;
-}
-
 
 
 

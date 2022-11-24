@@ -24,7 +24,7 @@ volatile sig_atomic_t running = 1;
 void set_exit_flag(int sig_no);
 
 /**
- * Temperture Manager
+ * Temperature Manager
  *
  * Take the sensor server name as first arg and actuator as second
  */
@@ -32,7 +32,7 @@ int main(int argc, char **argv){
 	FILE *log_file;
 	log_file = fopen("/tmp/temp_manager.log", "w");
 	fprintf(log_file, "Starting temp manager\n");
-
+	fflush(log_file);
 	int coid;
 
 	/* Connect to the temperature sensor server */
@@ -43,18 +43,21 @@ int main(int argc, char **argv){
 	}
 
 
-	while(1){
+	while(running){
 		/* Build the GET message */
 		get_snsr_data__msg_t get_msg;
 		get_msg.type = GET_DATA;
 		resp_snsr_data_msg_t resp;
 		MsgSend(coid, &get_msg, sizeof(get_msg), &resp, sizeof(resp));
 		fprintf(log_file, "GOT DATA: %.2f", resp.data);
-
+		fflush(log_file);
 		sleep(2);
 
 	}
 
+	/* Send terminate pulse to the server and actuator and cleanup */
+
+	fclose(log_file);
 	name_close(coid);
 	return EXIT_SUCCESS;
 }
