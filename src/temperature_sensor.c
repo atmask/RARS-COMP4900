@@ -173,12 +173,8 @@ void *runServer(void *args){
 			//received a pulse
 			 switch(rbuf.pulse.code){
 			 case _PULSE_CODE_DISCONNECT:
-<<<<<<< HEAD
 				fprintf(log_file, "Received disconnect from pulse\n");
 				fflush(log_file);
-=======
-				printf("Received disconnect from pulse\n");
->>>>>>> 889adfc4008039bdfc40d1bf54b60c0c2400ee4a
 				if (-1 == ConnectDetach(rbuf.pulse.scoid)) {
 					perror("ConnectDetach");
 				}
