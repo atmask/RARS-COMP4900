@@ -59,7 +59,7 @@ $(OUTPUT_DIR)/%.o: $(SRC_DIR)/%.c
 
 ## Linking rule
 #Right now trying a general fule but may need go specific
-SHARED_LINKING_DEPS = constants.h
+SHARED_LINKING_DEPS = constants.h utilities.h
 
 #$(OUTPUT_DIR)/RARS-COMP4900: $(OUTPUT_DIR)/RARS-COMP4900.o
 #$(OUTPUT_DIR)/temperature_sensor: $(OUTPUT_DIR)/temperature_sensor.o
