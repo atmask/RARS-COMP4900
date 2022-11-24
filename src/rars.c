@@ -3,6 +3,7 @@
 #include <spawn.h>
 #include <sys/neutrino.h>
 #include <unistd.h>
+#include <sys/dispatch.h>
 
 #include "constants.h"
 
@@ -11,6 +12,21 @@
 
 int main(void) {
 	printf("Hello World!!!\n"); /* prints Hello World!!! */
+
+
+	name_attach_t *attach;
+	struct _pulse msg;
+	int rcvid;
+
+	printf("Starting display;\n");
+
+	attach = name_attach(NULL, DISPLAY_SERVER, 0);
+	if (attach == NULL){
+		printf("Could not start display\n");
+		exit(EXIT_FAILURE);
+	}
+
+
 
 	pid_t rars_pids[NUM_PIDS];
 	int temp_sensor_fd[2];// 0=RD 1=WR
@@ -90,9 +106,35 @@ int main(void) {
 	}
 	args[0] = "/tmp/display";
 	args[NUM_PIDS+1] = NULL;
-	if (execv("/tmp/display", args) == -1){
-		perror("Could not start display. Shutting down RARS");
-		exit(EXIT_FAILURE);
+//	if (execv("/tmp/display", args) == -1){
+//		perror("Could not start display. Shutting down RARS");
+//		exit(EXIT_FAILURE);
+//	}
+
+	while (1) {
+		//receive message
+		printf("waiting for data pulse\n");
+		rcvid = MsgReceive(attach->chid, &msg, sizeof(msg), 0);
+		 if (0 == rcvid) {
+
+			 switch(msg.code){
+			 case _PULSE_CODE_DISCONNECT:
+				printf("Received disconnect from pulse\n");
+				if (-1 == ConnectDetach(msg.scoid)) {
+					perror("ConnectDetach");
+				}
+				break;
+			 case TEMP_DATA:
+				 printf("GOT TEMP DATA: %d", msg.value);
+				 break;
+			 default:
+				 printf("Unexpected pulse code: %d", msg.code);
+				 break;
+			 }
+		} else {
+			printf("Unexpected msg. Replying OK\n");
+			MsgReply(rcvid, EOK, "OK", sizeof("OK"));
+		}
 	}
 
 
