@@ -31,6 +31,11 @@
 #define ACTUATOR_STATE (_IO_MAX+4)
 
 
+//variable types for pulse code
+#define KILL_ALL 100
+#define TEMP 101
+
+
 // Message structs to ask for temp data
 typedef struct get_snsr_data_msg {
 	uint16_t type;
