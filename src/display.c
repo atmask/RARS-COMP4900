@@ -21,7 +21,6 @@ void cleanup_and_exit(int);
 
 //using printf for outputs for now
 int main(int argc, char **argv){
-
 	printf("HERE");
 	/* Register signal handle to receive user INT*/
 	signal(SIGINT, cleanup_and_exit);

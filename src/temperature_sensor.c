@@ -22,6 +22,7 @@
 
 
 #include "constants.h"
+#include "utilities.h"
 
 /*
  * Constants
@@ -78,11 +79,11 @@ int main(void) {
 
 	FILE *log_file1;
 	log_file1 = fopen("/tmp/sensor_reader.log", "w");
-	fprintf(log_file1, "Starting temp sensor\n");
+	logString(log_file1, "Starting temp sensor");
 
 	FILE *log_file2;
 	log_file2 = fopen("/tmp/sensor_server.log", "w");
-	fprintf(log_file2, "Starting temp sensor\n");
+	logString(log_file2, "Starting temp sensor");
 
 
 //	char temperature_data[BUFFER_SIZE];
@@ -118,8 +119,7 @@ void *readData(void *args){
 	char *temp_data = t_args->temp_data;
 
 	while(running){
-		fprintf(log_file, "get mutex\n");
-		fflush(log_file);
+		logString(log_file, "get mutex");
 		/* Lock the mutex */
 		pthread_mutex_lock(&temp_data_mutex);
 
@@ -128,12 +128,10 @@ void *readData(void *args){
 		 * */
 		//fscanf(stdin, "%s", temp_data);
 
-		fprintf(log_file, "Read data: %s\n", temp_data);
-		fflush(log_file);
+		logString(log_file, "Read data: %s", temp_data);
 
 		if(strcmp(temp_data, "31.0") == 0){
-			fprintf(log_file, "Done reading\n");
-			fflush(log_file);
+			logString(log_file, "Done reading");
 			break;
 		}
 		pthread_mutex_unlock(&temp_data_mutex);
@@ -159,14 +157,12 @@ void *runServer(void *args){
 
 
 	// register our name for a channel
-	attach = name_attach(NULL, TEMPERATURE_SERVER, 0);
+	attach = name_attach(NULL, TEMPERATURE_SENSOR_SERVER, 0);
 	if (attach == NULL){
-		fprintf(log_file, "Could not start server. %s\n", strerror(errno));
-		fflush(log_file);
+		logString(log_file, "Could not start server. %s", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
-	fprintf(log_file, "Starting Server\n");
-	fflush(log_file);
+	logString(log_file, "Starting Server");
 
 
 	while (running) {
@@ -178,13 +174,12 @@ void *runServer(void *args){
 			 switch(rbuf.pulse.code){
 			 case _PULSE_CODE_DISCONNECT:
 				printf("Received disconnect from pulse\n");
-				fflush(log_file);
 				if (-1 == ConnectDetach(rbuf.pulse.scoid)) {
 					perror("ConnectDetach");
 				}
 				break;
 			 default:
-				 printf("Unknown pulse received. Code: %d\n", rbuf.pulse.code);
+				 logString(log_file, "Unknown pulse received. Code: %d", rbuf.pulse.code);
 			 }
 
 		} else {
@@ -194,8 +189,7 @@ void *runServer(void *args){
 				// Get the mutex and return the temp data
 				pthread_mutex_lock(&temp_data_mutex);
 
-				fprintf(log_file, "Return data: %s\n", temp_data);
-				fflush(log_file);
+				logString(log_file, "Return data: %s", temp_data);
 				/* Build the response */
 				resp_snsr_data_msg_t resp;
 				resp.data = atoi(temp_data);
@@ -203,16 +197,14 @@ void *runServer(void *args){
 				/* Free the mutex so it does not get reply blocked*/
 				pthread_mutex_unlock(&temp_data_mutex);
 
-				fprintf(log_file, "Sending %s converted to %f\n", temp_data, resp.data);
-				fflush(log_file);
+				logString(log_file, "Sending %s converted to %f", temp_data, resp.data);
 
 				/* Send data back */
 				MsgReply(rcvid, EOK, &resp, sizeof(resp));
 
 				break;
 			default:
-				fprintf(log_file, "Unknown message type\n");
-				fflush(log_file);
+				logString(log_file, "Unknown message type");
 				MsgReply(rcvid, EOK, "OK", sizeof("OK"));
 			}
 		}

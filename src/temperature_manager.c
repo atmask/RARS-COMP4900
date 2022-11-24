@@ -14,6 +14,7 @@
 
 
 #include "constants.h"
+#include "utilities.h"
 
 
 /* Track the running state in an atomic var modified by signal handler*/
@@ -31,17 +32,16 @@ void set_exit_flag(int sig_no);
 int main(int argc, char **argv){
 	FILE *log_file;
 	log_file = fopen("/tmp/temp_manager.log", "w");
-	fprintf(log_file, "Starting temp manager\n");
-	fflush(log_file);
+	logString(log_file, "Starting temp manager");
 	int coid;
 
 	/* Connect to the temperature sensor server */
-	coid = name_open(TEMPERATURE_SERVER, 0);
+	coid = name_open(TEMPERATURE_SENSOR_SERVER, 0);
 	if (coid == -1){
-		fprintf(log_file, "Failed to connect to server. Code: %s\n", strerror(errno));
+		logString(log_file, "Failed to connect to server. Code: %s", strerror(errno));
+		fclose(log_file);
 		exit(EXIT_FAILURE);
 	}
-
 
 	while(running){
 		/* Build the GET message */
@@ -49,8 +49,7 @@ int main(int argc, char **argv){
 		get_msg.type = GET_DATA;
 		resp_snsr_data_msg_t resp;
 		MsgSend(coid, &get_msg, sizeof(get_msg), &resp, sizeof(resp));
-		fprintf(log_file, "GOT DATA: %.2f", resp.data);
-		fflush(log_file);
+		logString(log_file, "GOT DATA: %.2f", resp.data);
 		sleep(2);
 
 	}
