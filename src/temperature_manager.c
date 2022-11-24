@@ -15,6 +15,19 @@
 
 #include "constants.h"
 
+
+/* Track the running state in an atomic var modified by signal handler*/
+volatile sig_atomic_t running = 1;
+
+
+/* Functions */
+void set_exit_flag(int sig_no);
+
+/**
+ * Temperture Manager
+ *
+ * Take the sensor server name as first arg and actuator as second
+ */
 int main(int argc, char **argv){
 	FILE *log_file;
 	log_file = fopen("/tmp/temp_manager.log", "w");
@@ -29,13 +42,24 @@ int main(int argc, char **argv){
 		exit(EXIT_FAILURE);
 	}
 
-	/* Build the GET message */
-	get_snsr_data__msg_t get_msg;
-	get_msg.type = GET_DATA;
-	resp_snsr_data_msg_t resp;
-	MsgSend(coid, &get_msg, sizeof(get_msg), &resp, sizeof(resp));
-	fprintf(log_file, "GOT DATA: %.2f", resp.data);
+
+	while(1){
+		/* Build the GET message */
+		get_snsr_data__msg_t get_msg;
+		get_msg.type = GET_DATA;
+		resp_snsr_data_msg_t resp;
+		MsgSend(coid, &get_msg, sizeof(get_msg), &resp, sizeof(resp));
+		fprintf(log_file, "GOT DATA: %.2f", resp.data);
+
+		sleep(2);
+
+	}
 
 	name_close(coid);
 	return EXIT_SUCCESS;
+}
+
+
+void set_exit_flag(int sig_no){
+	running = 0;
 }

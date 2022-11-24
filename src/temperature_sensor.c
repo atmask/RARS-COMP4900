@@ -32,7 +32,8 @@
 /*
  *  our global variables.
  */
-volatile int state; // which state we are in
+volatile sig_atomic_t running = 1;
+
 
 
 /*
@@ -41,9 +42,10 @@ volatile int state; // which state we are in
 
 pthread_mutex_t temp_data_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-/* Threads functions*/
+/* Functions*/
 void *runServer();
 void *readData();
+void set_exit_flag(int);
 
 /*
  * Structs for passing data to thread functions
@@ -74,6 +76,9 @@ typedef union
  *
  */
 int main(void) {
+
+	//signal(SIGTERM, set_exit_flag);
+
 	FILE *log_file1;
 	log_file1 = fopen("/tmp/sensor_reader.log", "w");
 	fprintf(log_file1, "Starting temp sensor\n");
@@ -97,10 +102,12 @@ int main(void) {
 	t_args.log_file = log_file1;
 	pthread_create(&read_thread, NULL, readData, &t_args);
 
-	pthread_join(read_thread, NULL);
-	pthread_join(server_thread, NULL);
 
 	/*wait on the threads*/
+	pthread_join(read_thread, NULL);
+	//Don't wait on the server thres because it is recieve blocked and won't shut down
+	pthread_join(server_thread, NULL);
+
 }
 
 void *readData(void *args){
@@ -110,7 +117,7 @@ void *readData(void *args){
 	FILE *log_file = t_args->log_file;
 	char *temp_data = t_args->temp_data;
 
-	while(1){
+	while(running){
 		fprintf(log_file, "get mutex\n");
 		/* Lock the mutex */
 		pthread_mutex_lock(&temp_data_mutex);
@@ -131,6 +138,8 @@ void *readData(void *args){
 		sleep(3);
 	}
 
+	/* Cleanup */
+	//fclose(log_file);
 	return 0;
 }
 
@@ -149,13 +158,13 @@ void *runServer(void *args){
 	// register our name for a channel
 	attach = name_attach(NULL, TEMPERATURE_SERVER, 0);
 	if (attach == NULL){
-		fprintf(log_file, "Could not start server");
+		fprintf(log_file, "Could not start server. %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 	fprintf(log_file, "Starting Server\n");
 
 
-	while (1) {
+	while (running) {
 		//receive message
 		rcvid = MsgReceive(attach->chid, &rbuf, sizeof(rbuf), NULL);
 
@@ -180,18 +189,18 @@ void *runServer(void *args){
 				pthread_mutex_lock(&temp_data_mutex);
 
 				printf("Return data: %s", temp_data);
-
 				/* Build the response */
 				resp_snsr_data_msg_t resp;
 				resp.data = atof(temp_data);
+
+				/* Free the mutex so it does not get reply blocked*/
+				pthread_mutex_unlock(&temp_data_mutex);
 
 				fprintf(log_file, "Sending %s converted to %f", temp_data, resp.data);
 
 				/* Send data back */
 				MsgReply(rcvid, EOK, &resp, sizeof(resp));
 
-				/* Free the mutex */
-				pthread_mutex_unlock(&temp_data_mutex);
 				break;
 			default:
 				printf("Unknown message type\n");
@@ -200,9 +209,14 @@ void *runServer(void *args){
 		}
 	}
 
-	//TODO: Clean up with name_dettatch in the sigin handler
+	/* Cleanup */
+	name_detach(attach, 0);
+	//fclose(log_file);
 	return 0;
+}
 
+void set_exit_flag(int sig_no){
+	running=0;
 }
 
 

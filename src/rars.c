@@ -4,10 +4,15 @@
 #include <sys/neutrino.h>
 #include <unistd.h>
 
+#include "constants.h"
+
+#define NUM_PIDS 2
+
+
 int main(void) {
 	printf("Hello World!!!\n"); /* prints Hello World!!! */
 
-	pid_t rars_pids[2];
+	pid_t rars_pids[NUM_PIDS];
 	int temp_sensor_fd[2];// 0=RD 1=WR
 
 	/* Create the pipes representing sensors*/
@@ -35,25 +40,38 @@ int main(void) {
 		exit(EXIT_FAILURE);
 	}
 
-
-
-	/*****************************************************************************
-	 * Create the temp manager clients for the sensors
-	 *****************************************************************************/
-
-	char *tm_args[] = {"/tmp/temperature_manager", NULL};
-	rars_pids[1] = spawn("/tmp/temperature_manager", 0, NULL, NULL, tm_args, NULL);
-	if(rars_pids[1] == -1){
-		perror("Failed to spawn temp manager");
-		exit(EXIT_FAILURE);
-	}
-
-
-
-	/* Exec() the Display Process
-	 *
-	 * The display Process will take over execution from here but pass it the rars_pids so it can kill everything
-	 * */
+//
+//
+//	/*****************************************************************************
+//	 * Create the temp manager clients for the sensors
+//	 *****************************************************************************/
+//
+//	char *tm_args[] = {"/tmp/temperature_manager", TEMPERATURE_SERVER, NULL};
+//	rars_pids[1] = spawn("/tmp/temperature_manager", 0, NULL, NULL, tm_args, NULL);
+//	if(rars_pids[1] == -1){
+//		perror("Failed to spawn temp manager");
+//		exit(EXIT_FAILURE);
+//	}
+//
+//
+//
+//	/* Exec() the Display Process
+//	 *
+//	 * The display Process will take over execution from here but pass it the rars_pids so it can kill everything
+//	 * */
+//	char *args[NUM_PIDS+2];
+//	/* Convert all the pids to strings */
+//	for (int i=0; i<NUM_PIDS; i++){
+//		args[i+1] = malloc(10*sizeof(char));
+//		sprintf(args[i+1], "%d", rars_pids[i]);
+//		printf("Converted %d to %s\n", rars_pids[i], args[i+1]);
+//	}
+//	args[0] = "/tmp/display";
+//	args[NUM_PIDS+1] = NULL;
+//	if (execv("/tmp/display", args) == -1){
+//		perror("Could not start display. Shutting down RARS");
+//		exit(EXIT_FAILURE);
+//	}
 
 
 	return EXIT_SUCCESS;
