@@ -23,6 +23,7 @@ void cleanup_and_exit(int);
 int main(int argc, char **argv){
 
 	printf("HERE\n");
+
 	/* Register signal handle to receive user INT*/
 	signal(SIGINT, cleanup_and_exit);
 	signal(SIGTERM, cleanup_and_exit);
