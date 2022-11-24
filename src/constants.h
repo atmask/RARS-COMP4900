@@ -17,7 +17,8 @@
  *******************/
 
 // Server names
-#define DISPLAY "display"
+#define TEMPERATURE_SERVER "temperature_sensor"
+#define DISPLAY_SERVER "display"
 #define TEMPERATURE_SENSOR_SERVER "temperature_sensor"
 #define TEMPERATURE_ACTUATOR_SERVER "temperature_actuator"
 #define HEATER_ACTUATOR_SERVER "heater_actuator"
@@ -55,6 +56,12 @@ typedef struct cmd_actu_chng_state_msg {
 typedef struct resp_actu_state_msg {
 	int		state;	// UP, DOWN, OFF
 } resp_actu_state_msg_t;
+
+
+/*******************
+ *  PULSE CODES
+ *******************/
+#define TEMP_DATA (_PULSE_CODE_MINAVAIL+1)
 
 
 /*Actuator Constants*/
