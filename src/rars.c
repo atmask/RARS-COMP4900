@@ -9,11 +9,24 @@
 
 #define NUM_PIDS 5
 
+/********************************
+ * Signals
+ *******************************/
+/*Atomic var to track running state*/
+volatile sig_atomic_t running = 1;
+void cleanup_and_exit(int);
+
 
 int main(void) {
-	printf("Hello World!!!\n"); /* prints Hello World!!! */
+	/* Register signal handle to receive user INT*/
+	signal(SIGINT, cleanup_and_exit);
+	signal(SIGTERM, cleanup_and_exit);
+	signal(SIGKILL, cleanup_and_exit);
 
 
+	/*****************************************************************************
+	 * Start the Display server so the manager can connect
+	 *****************************************************************************/
 	name_attach_t *attach;
 	struct _pulse msg;
 	int rcvid;
@@ -25,7 +38,9 @@ int main(void) {
 		printf("Could not start display\n");
 		exit(EXIT_FAILURE);
 	}
-
+	/*****************************************************************************
+	 * END: Display start
+	 *****************************************************************************/
 
 
 	pid_t rars_pids[NUM_PIDS];
@@ -97,21 +112,25 @@ int main(void) {
 	 *
 	 * The display Process will take over execution from here but pass it the rars_pids so it can kill everything
 	 * */
-	char *args[NUM_PIDS+2];
-	/* Convert all the pids to strings */
-	for (int i=0; i<NUM_PIDS; i++){
-		args[i+1] = malloc(10*sizeof(char));
-		sprintf(args[i+1], "%d", rars_pids[i]);
-		printf("Converted %d to %s\n", rars_pids[i], args[i+1]);
-	}
-	args[0] = "/tmp/display";
-	args[NUM_PIDS+1] = NULL;
+//	char *args[NUM_PIDS+2];
+//	/* Convert all the pids to strings */
+//	for (int i=0; i<NUM_PIDS; i++){
+//		args[i+1] = malloc(10*sizeof(char));
+//		sprintf(args[i+1], "%d", rars_pids[i]);
+//		printf("Converted %d to %s\n", rars_pids[i], args[i+1]);
+//	}
+//	args[0] = "/tmp/display";
+//	args[NUM_PIDS+1] = NULL;
 //	if (execv("/tmp/display", args) == -1){
 //		perror("Could not start display. Shutting down RARS");
 //		exit(EXIT_FAILURE);
 //	}
 
-	while (1) {
+
+	/*****************************************************************************
+	 * Start the Display Logics
+	 *****************************************************************************/
+	while (running) {
 		//receive message
 		printf("waiting for data pulse\n");
 		rcvid = MsgReceive(attach->chid, &msg, sizeof(msg), 0);
@@ -125,7 +144,7 @@ int main(void) {
 				}
 				break;
 			 case TEMP_DATA:
-				 printf("GOT TEMP DATA: %d", msg.value);
+				 printf("[DISPLAY] Temperature Sensor: %d\n", msg.value);
 				 break;
 			 default:
 				 printf("Unexpected pulse code: %d", msg.code);
@@ -140,3 +159,10 @@ int main(void) {
 
 	return EXIT_SUCCESS;
 }
+
+
+void cleanup_and_exit(int sig_no){
+	printf("Interrupt: Exiting\n");
+	running = 0;
+}
+
