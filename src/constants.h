@@ -56,7 +56,8 @@ typedef struct resp_actu_state_msg {
 /*******************
  *  PULSE CODES
  *******************/
-#define TEMP_DATA (_PULSE_CODE_MINAVAIL+1)
+#define KILL_ALL (_PULSE_CODE_MINAVAIL+1)
+#define TEMP_DATA (_PULSE_CODE_MINAVAIL+2)
 
 
 /*Actuator Constants*/

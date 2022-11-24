@@ -22,7 +22,7 @@ void cleanup_and_exit(int);
 //using printf for outputs for now
 int main(int argc, char **argv){
 
-	printf("HERE\n");
+
 
 	/* Register signal handle to receive user INT*/
 	signal(SIGINT, cleanup_and_exit);
@@ -56,6 +56,10 @@ int main(int argc, char **argv){
 				break;
 			 case TEMP_DATA:
 				 printf("GOT TEMP DATA: %d", msg.value);
+				 break;
+			 case KILL_ALL:
+				 printf("System shutdown\n");
+				 cleaup_an_exit(0);
 				 break;
 			 default:
 				 printf("Unexpected pulse code: %d", msg.code);
