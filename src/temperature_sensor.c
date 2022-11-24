@@ -22,6 +22,7 @@
 
 
 #include "constants.h"
+#include "utilities.h"
 
 /*
  * Constants
@@ -76,11 +77,11 @@ typedef union
 int main(void) {
 	FILE *log_file1;
 	log_file1 = fopen("/tmp/sensor_reader.log", "w");
-	fprintf(log_file1, "Starting temp sensor\n");
+	logString(log_file1, "Starting temp sensor\n");
 
 	FILE *log_file2;
 	log_file2 = fopen("/tmp/sensor_server.log", "w");
-	fprintf(log_file2, "Starting temp sensor\n");
+	logString(log_file2, "Starting temp sensor\n");
 
 
 	char temperature_data[BUFFER_SIZE];
@@ -111,7 +112,7 @@ void *readData(void *args){
 	char *temp_data = t_args->temp_data;
 
 	while(1){
-		fprintf(log_file, "get mutex\n");
+		logString(log_file, "get mutex\n");
 		/* Lock the mutex */
 		pthread_mutex_lock(&temp_data_mutex);
 
@@ -120,10 +121,10 @@ void *readData(void *args){
 		 * */
 		fscanf(stdin, "%s", temp_data);
 
-		fprintf(log_file, "Read data: %s\n", temp_data);
+		logString(log_file, "Read data: %s\n", temp_data);
 
 		if(strcmp(temp_data, "31.0") == 0){
-			fprintf(log_file, "Done reading\n");
+			logString(log_file, "Done reading\n");
 			break;
 		}
 		pthread_mutex_unlock(&temp_data_mutex);
@@ -149,10 +150,11 @@ void *runServer(void *args){
 	// register our name for a channel
 	attach = name_attach(NULL, TEMPERATURE_SENSOR_SERVER, 0);
 	if (attach == NULL){
-		fprintf(log_file, "Could not start server");
+		logString(log_file, "Could not start server");
+		logString(log_file, "Errno: %d\n", errno);
 		exit(EXIT_FAILURE);
 	}
-	fprintf(log_file, "Starting Server\n");
+	logString(log_file, "Starting Server\n");
 
 
 	while (1) {
@@ -163,13 +165,13 @@ void *runServer(void *args){
 			//received a pulse
 			 switch(rbuf.pulse.code){
 			 case _PULSE_CODE_DISCONNECT:
-				printf("Received disconnect from pulse\n");
+				logString("Received disconnect from pulse\n");
 				if (-1 == ConnectDetach(rbuf.pulse.scoid)) {
 					perror("ConnectDetach");
 				}
 				break;
 			 default:
-				 printf("Unknown pulse received. Code: %d\n", rbuf.pulse.code);
+				 logString("Unknown pulse received. Code: %d\n", rbuf.pulse.code);
 			 }
 
 		} else {
@@ -185,7 +187,7 @@ void *runServer(void *args){
 				resp_snsr_data_msg_t resp;
 				resp.data = atof(temp_data);
 
-				fprintf(log_file, "Sending %s converted to %f", temp_data, resp.data);
+				logString(log_file, "Sending %s converted to %f", temp_data, resp.data);
 
 				/* Send data back */
 				MsgReply(rcvid, EOK, &resp, sizeof(resp));

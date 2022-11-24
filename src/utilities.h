@@ -12,11 +12,23 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <stdarg.h>
 
-int logString(FILE* logFile, char* s)
+#define MAX_STRING 512
+
+int logString(FILE* logFile, char* s, ...)
 {
 	time_t ltime; /* calendar time */
 	ltime=time(NULL); /* get current cal time */
-	fprintf(logFile, "%s: %s\n",asctime(localtime(&ltime)), s);
+	char *timeString = asctime(localtime(&ltime));
+	timeString[24] = '\0';
+
+	char buffer[MAX_STRING];
+	va_list args;
+	va_start(args, s);
+	vsnprintf(buffer, MAX_STRING, s, args);
+
+	fprintf(logFile, "%s: %s\n",timeString, buffer);
+	va_end(args);
 	return 0;
 }

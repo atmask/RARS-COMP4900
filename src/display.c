@@ -27,14 +27,14 @@ int main(int argc, char **argv){
 	FILE *log_file;
 	struct _msg_info info;
 	log_file = fopen("/tmp/display.log", "w");
-	fprintf(log_file, "Starting display;\n");
+	logString(log_file, "Starting display;\n");
 
 	printf("RARS starting\nAttempting to Start Systems\n\n");
 
 	name_attach_t* attach;
 	attach = name_attach(NULL, DISPLAY, 0);
 	if (attach == NULL){
-		fprintf(log_file, "Could not start display\n");
+		logString(log_file, "Could not start display\n");
 		printf("Display error. Closing display\n");
 		exit(EXIT_FAILURE);
 	}
@@ -49,7 +49,7 @@ int main(int argc, char **argv){
 				ConnectDetach(msg.pulse.scoid);
 				//break;
 			} else {
-				fprintf(log_file, "Message: %s\nFrom process: %d\n",msg.pulse.value.sival_ptr,info.pid);//might cause errors with sival_ptr
+				logString(log_file, "Message: %s\nFrom process: %d\n",msg.pulse.value.sival_ptr,info.pid);//might cause errors with sival_ptr
 				printf("Update: %s\n",msg.pulse.value.sival_ptr);//currently no compiler errors
 			}
 

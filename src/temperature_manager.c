@@ -14,18 +14,20 @@
 
 
 #include "constants.h"
+#include "utilities.h"
 
 int main(int argc, char **argv){
 	FILE *log_file;
 	log_file = fopen("/tmp/temp_manager.log", "w");
-	fprintf(log_file, "Starting temp manager\n");
+	logString(log_file, "Starting temp manager");
 
 	int coid;
 
 	/* Connect to the temperature sensor server */
 	coid = name_open(TEMPERATURE_SENSOR_SERVER, 0);
 	if (coid == -1){
-		fprintf(log_file, "Failed to connect to server. Code: %s\n", strerror(errno));
+		logString(log_file, "Failed to connect to server. Code: %s\n", strerror(errno));
+		fclose(log_file);
 		exit(EXIT_FAILURE);
 	}
 
@@ -34,7 +36,7 @@ int main(int argc, char **argv){
 	get_msg.type = GET_DATA;
 	resp_snsr_data_msg_t resp;
 	MsgSend(coid, &get_msg, sizeof(get_msg), &resp, sizeof(resp));
-	fprintf(log_file, "GOT DATA: %.2f", resp.data);
+	logString(log_file, "GOT DATA: %.2f", resp.data);
 
 	name_close(coid);
 	return EXIT_SUCCESS;

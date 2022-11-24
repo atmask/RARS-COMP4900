@@ -44,13 +44,11 @@ FILE *log_file;
 int delegateStateChange(int state)
 {
 	int 	coid;
-	char 	s[255];
 
 	/* Connect to the air conditioner server */
 	coid = name_open(AIR_CONDITIONER_ACTUATOR_SERVER, 0);
 	if (coid == -1){
-		sprintf(s, "Failed to connect to server. Code: %s\n", strerror(errno));
-		logString(log_file, s);
+		logString(log_file, "Failed to connect to server. Code: %s\n", strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -64,8 +62,7 @@ int delegateStateChange(int state)
 	/* Connect to the heater server */
 	coid = name_open(HEATER_ACTUATOR_SERVER, 0);
 	if (coid == -1){
-		sprintf(s, "Failed to connect to server. Code: %s\n", strerror(errno));
-		logString(log_file, s);
+		logString(log_file, "Failed to connect to server. Code: %s\n", strerror(errno));
 		return EXIT_FAILURE;
 	}
 	resp_actu_state_msg_t heater_resp;
@@ -87,7 +84,6 @@ int main(void) {
 	int 			rcvid;
 	name_attach_t 	*attach;
 	recv_cmd_t 		rbuf;
-	char 			s[255];
 	int 			state = OFF;
 
 	//set up log file
@@ -101,8 +97,7 @@ int main(void) {
 		exit(EXIT_FAILURE);
 	}
 	logString(log_file, "Starting Server");
-
-
+	return EXIT_SUCCESS;
 	while (1) {
 		//receive message
 		rcvid = MsgReceive(attach->chid, &rbuf, sizeof(rbuf), NULL);
@@ -117,8 +112,7 @@ int main(void) {
 				}
 				break;
 			 default:
-				 sprintf(s, "Unknown pulse received. Code: %d\n", rbuf.pulse.code);
-				 logString(log_file, s);
+				 logString(log_file, "Unknown pulse received. Code: %d\n", rbuf.pulse.code);
 			 }
 
 		} else {
@@ -127,23 +121,20 @@ int main(void) {
 			case COMMAND_ACTUATOR_STATE:
 				// Change the state of the actuator
 				state = rbuf.cmd.state;
-				sprintf(s, "Received command: %d", state);
-				logString(log_file, s);
+				logString(log_file, "Received command: %d", state);
 
 				//TODO: SEND MESSAGES TO HEATER AND A/C
 
 				/* Build the response */
 				resp_actu_state_msg_t resp;
 				resp.state = state;
-				sprintf(s, "Replying with current state: %d", state);
-				logString(log_file, s);
+				logString(log_file, "Replying with current state: %d", state);
 
 				/* Send data back */
 				MsgReply(rcvid, EOK, &resp, sizeof(resp));
 				break;
 			default:
-				sprintf(s, "Received unknown message type: %d", rbuf.type);
-				logString(log_file, s);
+				logString(log_file, "Received unknown message type: %d", rbuf.type);
 				MsgReply(rcvid, ENOTSUP, "Not supported", sizeof("Not supported"));
 			}
 		}

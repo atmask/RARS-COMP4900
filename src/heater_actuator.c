@@ -39,7 +39,6 @@ int main(void) {
 	int 			rcvid;
 	name_attach_t 	*attach;
 	recv_cmd_t 		rbuf;
-	char s[255];
 
 	//set up log file
 	log_file = fopen("/tmp/heater_actuator.log", "w");
@@ -68,8 +67,7 @@ int main(void) {
 				}
 				break;
 			 default:
-				 sprintf(s, "Unknown pulse received. Code: %d\n", rbuf.pulse.code);
-				 logString(log_file, s);
+				 logString(log_file, "Unknown pulse received. Code: %d\n", rbuf.pulse.code);
 			 }
 
 		} else {
@@ -77,8 +75,7 @@ int main(void) {
 			// we got a message, check its type and process the msg based on its type
 			switch(rbuf.type){
 			case COMMAND_ACTUATOR_STATE:
-				sprintf(s, "Received command: %d", rbuf.cmd.state);
-				logString(log_file, s);
+				logString(log_file, "Received command: %d", rbuf.cmd.state);
 				if(rbuf.cmd.state == UP || rbuf.cmd.state == OFF)
 				{
 					// Change the state of the actuator
@@ -88,23 +85,20 @@ int main(void) {
 				}
 				else
 				{
-					sprintf(s, "ERROR: %d is an invalid state for heater", rbuf.cmd.state);
-					logString(log_file, s);
+					logString(log_file, "ERROR: %d is an invalid state for heater", rbuf.cmd.state);
 					status = EPERM;
 				}
 
 				/* Build the response */
 				resp_actu_state_msg_t resp;
 				resp.state = state;
-				sprintf(s, "Replying with current state: %d", state);
-				logString(log_file, s);
+				logString(log_file, "Replying with current state: %d", state);
 
 				/* Send data back */
 				MsgReply(rcvid, status, &resp, sizeof(resp));
 				break;
 			default:
-				sprintf(s, "Received unknown message type: %d", rbuf.type);
-				logString(log_file, s);
+				logString(log_file, "Received unknown message type: %d", rbuf.type);
 				MsgReply(rcvid, ENOTSUP, "Not supported", sizeof("Not supported"));
 			}
 		}
