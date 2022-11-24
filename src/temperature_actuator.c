@@ -97,7 +97,7 @@ int main(void) {
 		exit(EXIT_FAILURE);
 	}
 	logString(log_file, "Starting Server");
-	return EXIT_SUCCESS;
+
 	while (1) {
 		//receive message
 		rcvid = MsgReceive(attach->chid, &rbuf, sizeof(rbuf), NULL);
