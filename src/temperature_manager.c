@@ -33,12 +33,21 @@ int main(int argc, char **argv){
 	log_file = fopen("/tmp/temp_manager.log", "w");
 	fprintf(log_file, "Starting temp manager\n");
 	fflush(log_file);
-	int coid;
+	int temp_coid, display_coid;
 
 	/* Connect to the temperature sensor server */
-	coid = name_open(TEMPERATURE_SERVER, 0);
-	if (coid == -1){
-		fprintf(log_file, "Failed to connect to server: %s\n", strerror(errno));
+	temp_coid = name_open(TEMPERATURE_SERVER, 0);
+	if (temp_coid == -1){
+		fprintf(log_file, "Failed to connect to temp server: %s\n", strerror(errno));
+		fflush(log_file);
+		exit(EXIT_FAILURE);
+	}
+
+
+	/* Connect to the display server */
+	display_coid = name_open(DISPLAY_SERVER, 0);
+	if (display_coid == -1){
+		fprintf(log_file, "Failed to connect to display server: %s\n", strerror(errno));
 		fflush(log_file);
 		exit(EXIT_FAILURE);
 	}
@@ -49,12 +58,12 @@ int main(int argc, char **argv){
 		get_snsr_data__msg_t get_msg;
 		get_msg.type = GET_DATA;
 		resp_snsr_data_msg_t resp;
-		MsgSend(coid, &get_msg, sizeof(get_msg), &resp, sizeof(resp));
+		MsgSend(temp_coid, &get_msg, sizeof(get_msg), &resp, sizeof(resp));
 		fprintf(log_file, "GOT DATA: %.2f\n", resp.data);
 		fflush(log_file);
 
 		/* Build Pulse for the display manager */
-		if(MsgSendPulse(DISPLAY_SERVER, -1, TEMP_DATA, resp.data) == 1){
+		if(MsgSendPulse(display_coid, -1, TEMP_DATA, resp.data) == 1){
 			fprintf(log_file, "Failed to connect to send data pulse to display: %s\n", strerror(errno));
 			fflush(log_file);
 			exit(EXIT_FAILURE);
@@ -68,7 +77,8 @@ int main(int argc, char **argv){
 	/* Send terminate pulse to the server and actuator and cleanup */
 
 	fclose(log_file);
-	name_close(coid);
+	name_close(temp_coid);
+	name_close(display_coid);
 	return EXIT_SUCCESS;
 }
 

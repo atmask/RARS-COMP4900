@@ -22,20 +22,49 @@ void cleanup_and_exit(int);
 //using printf for outputs for now
 int main(int argc, char **argv){
 
-	printf("HERE");
+	printf("HERE\n");
 	/* Register signal handle to receive user INT*/
 	signal(SIGINT, cleanup_and_exit);
 	signal(SIGTERM, cleanup_and_exit);
 	signal(SIGKILL, cleanup_and_exit);
 
+	name_attach_t* attach;
+	struct _pulse msg;
+	int rcvid;
 
-	printf("HERE\n");
+	printf("Starting display;\n");
 
-	while(running){
-		printf("Running\n");
-		sleep(2);
+	attach = name_attach(NULL, DISPLAY_SERVER, 0);
+	if (attach == NULL){
+		printf("Could not start display\n");
+		exit(EXIT_FAILURE);
 	}
 
+	while (running) {
+		//receive message
+		printf("waiting for data pulse\n");
+		rcvid = MsgReceive(attach->chid, &msg, sizeof(msg), 0);
+		 if (0 == rcvid) {
+
+			 switch(msg.code){
+			 case _PULSE_CODE_DISCONNECT:
+				printf("Received disconnect from pulse\n");
+				if (-1 == ConnectDetach(msg.scoid)) {
+					perror("ConnectDetach");
+				}
+				break;
+			 case TEMP_DATA:
+				 printf("GOT TEMP DATA: %d", msg.value);
+				 break;
+			 default:
+				 printf("Unexpected pulse code: %d", msg.code);
+				 break;
+			 }
+		} else {
+			printf("Unexpected msg. Replying OK\n");
+			MsgReply(rcvid, EOK, "OK", sizeof("OK"));
+		}
+	}
 
 	/* Kill the running procs generated for RARS and exit gracefully */
 	//ignore the bin name but convert all the pids to int and kill with with SIGTERM
@@ -47,56 +76,6 @@ int main(int argc, char **argv){
 
 	exit(EXIT_SUCCESS);
 
-
-	name_attach_t* attach;
-	struct _pulse msg;
-	int rcvid;
-
-	FILE *log_file;
-	log_file = fopen("/tmp/display.log", "w");
-	fprintf(log_file, "Starting display;\n");
-
-	attach = name_attach(NULL, DISPLAY_SERVER, 0);
-	if (attach == NULL){
-		fprintf(log_file, "Could not start display\n");
-		exit(EXIT_FAILURE);
-	}
-
-	while (running) {
-		//receive message
-		rcvid = MsgReceive(attach->chid, &msg, sizeof(msg), &info);
-		 if (0 == rcvid) {
-
-			 switch(msg.code){
-			 case _PULSE_CODE_DISCONNECT:
-				fprintf(log_file, "Received disconnect from pulse\n");
-				fflush(log_file);
-				if (-1 == ConnectDetach(rbuf.pulse.scoid)) {
-					perror("ConnectDetach");
-				}
-				break;
-			 case TEMP_DATA:
-
-			 default:
-				 fprintf(log_file, "Unexpectes pulse code: %d", msg.code);
-				 fflush(log_file);
-			 }
-//			//received a pulse
-//			 if (msg.code == _PULSE_CODE_DISCONNECT){
-//				printf("Process %d is gone\n", info.pid);
-//				ConnectDetach(msg.pulse.scoid);
-//				//break;
-//			} else {
-//				fprintf(log_file, "Message: %s\nFrom process: %d\n",msg.pulse.value.sival_ptr,info.pid);//might cause errors with sival_ptr
-//				printf("Update: %s\n",msg.pulse.value.sival_ptr);//currently no compiler errors
-//			}
-
-		} else {
-			fprintf(log_file, "Unexpected msg. Replying OK\n");
-			fflush(log_file);
-			MsgReply(rcvid, EOK, "OK", sizeof("OK"));
-		}
-	}
 
 }
 
