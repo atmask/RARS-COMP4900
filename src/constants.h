@@ -11,12 +11,9 @@
 #include <sys/iomsg.h>
 #include <sys/mman.h>
 
-
-/*******************
- * SENSOR SERVERS
- *******************/
-
-// Server names
+/**********************************************
+ * SERVER NAMES
+ ********************************************/
 #define TEMPERATURE_SERVER "temperature_sensor"
 #define DISPLAY_SERVER "display"
 #define TEMPERATURE_SENSOR_SERVER "temperature_sensor"
@@ -24,14 +21,17 @@
 #define HEATER_ACTUATOR_SERVER "heater_actuator"
 #define AIR_CONDITIONER_ACTUATOR_SERVER "air_conditioner_actuator"
 
-
-// Message types
+/**********************************************
+ * MESSAGE TYPES
+ ********************************************/
 #define GET_DATA (_IO_MAX+1)
 #define SENSOR_DATA (_IO_MAX+2)
 #define COMMAND_ACTUATOR_STATE (_IO_MAX+3)
 #define ACTUATOR_STATE (_IO_MAX+4)
 
-
+/**********************************************
+ * SENSOR SERVER MESSAGE STRUCTS
+ ********************************************/
 // Message structs to ask for temp data
 typedef struct get_snsr_data_msg {
 	uint16_t type;
@@ -53,19 +53,28 @@ typedef struct resp_actu_state_msg {
 } resp_actu_state_msg_t;
 
 
-/*******************
- *  PULSE CODES
- *******************/
+/*********************************
+ *  PULSE CODES FOR DISPLAY
+ *********************************/
 #define TEMP_DATA (_PULSE_CODE_MINAVAIL+1)
 
 
-/*Actuator Constants*/
+/*********************************
+ *  ACTUATOR CONSTANTS
+ *********************************/
 #define UP 1
 #define DOWN 2
 #define OFF 3
 
 /*SENSOR TYPES*/
 #define TEMPERATURE 1
+
+
+/*********************************
+ *  SENSOR TRHRESHOLDS
+ *********************************/
+#define MAX_TEMP 25
+#define MIN_TEMP 20
 
 
 #endif /* SRC_CONSTANTS_H_ */

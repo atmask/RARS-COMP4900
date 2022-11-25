@@ -87,7 +87,7 @@ int main(void) {
 
 
 //	char temperature_data[BUFFER_SIZE];
-	char temperature_data[] = {'1', '2', 0};
+	char temperature_data[] = {'1', '8', 0};
 
 	pthread_t read_thread, server_thread;
 
@@ -154,6 +154,8 @@ void *runServer(void *args){
 	int 			rcvid;
 	name_attach_t 	*attach;
 	recv_buf_t 		rbuf;
+
+	//srand(time(NULL));
 
 
 	// register our name for a channel

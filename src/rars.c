@@ -156,6 +156,13 @@ int main(void) {
 		}
 	}
 
+	/* Kill the running procs generated for RARS and exit gracefully */
+	//ignore the bin name but convert all the pids to int and kill with with SIGTERM
+	for(int i=0; i<NUM_PIDS; i++){
+		printf("Killing pid: %d\n", rars_pids[i]);
+		kill(rars_pids[i], SIGTERM);
+	}
+
 
 	return EXIT_SUCCESS;
 }
