@@ -155,7 +155,7 @@ void *runServer(void *args){
 	name_attach_t 	*attach;
 	recv_buf_t 		rbuf;
 
-	//srand(time(NULL));
+	srand(time(NULL));
 
 
 	// register our name for a channel
@@ -199,7 +199,7 @@ void *runServer(void *args){
 				logString(log_file, "Return data: %s", temp_data);
 				/* Build the response */
 				resp_snsr_data_msg_t resp;
-				resp.data = atoi(temp_data);
+				resp.data = atoi(temp_data) + (rand() % 6);
 
 				/* Free the mutex so it does not get reply blocked*/
 				pthread_mutex_unlock(&temp_data_mutex);

@@ -64,6 +64,8 @@ typedef struct resp_actu_state_msg {
  *********************************/
 #define UP 1
 #define DOWN 2
+
+#define ON 1
 #define OFF 3
 
 /*SENSOR TYPES*/
