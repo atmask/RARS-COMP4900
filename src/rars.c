@@ -127,8 +127,10 @@ int main(void) {
 
 	//Store the data for the print
 	float temp;
-	char *ac_state = malloc(sizeof(char)*8);
-	char *heater_state = malloc(sizeof(char)*8);
+	char ac_state[8];
+	char heater_state[8];
+	strcpy(ac_state, "OFF");
+	strcpy(heater_state, "OFF");
 
 	// Create a timer to periodically print the display
 	struct sigevent sigevent;
@@ -138,16 +140,14 @@ int main(void) {
 	event_coid = ConnectAttach(0, 0, attach->chid, _NTO_SIDE_CHANNEL, 0);
 	SIGEV_PULSE_INIT(&sigevent, event_coid, SIGEV_PULSE_PRIO_INHERIT, TIMER_PULSE_CODE, 0);
 	timer_create(CLOCK_REALTIME, &sigevent, &timerID);
-	itime.it_value.tv_sec = 3;
+	itime.it_value.tv_sec = 2;
+	itime.it_value.tv_nsec = 0;
 	itime.it_interval.tv_sec = 2;
+	itime.it_interval.tv_nsec = 0;
 	timer_settime(timerID, 0, &itime, NULL);
 
 	printf("Preparing to receive data pulses\n\n");
 	while (running) {
-		//receive message
-		//char ac_state[6];
-
-
 		rcvid = MsgReceive(attach->chid, &msg, sizeof(msg), 0);
 		 if (0 == rcvid) {
 			 switch(msg.code){
@@ -170,26 +170,26 @@ int main(void) {
 			 	 printf("Pulse received:\n[DISPLAY] Killing all processes\n");
 			 	 break;
 			 case TEMP_DATA:
-				 printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
+				 //printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
 				 temp = msg.value.sival_int;
 				 break;
 			 case TEMP_AC:
 				 if(msg.value.sival_int == ON){
 					strcpy(ac_state, "ON");
-					printf("Pulse received:\n[DISPLAY] AC has turned on\n");
+					//printf("Pulse received:\n[DISPLAY] AC has turned on\n");
 				 }else if(msg.value.sival_int == OFF){
 					strcpy(ac_state, "OFF");
-					printf("Pulse received:\n[DISPLAY] AC has turned off\n");
+					//printf("Pulse received:\n[DISPLAY] AC has turned off\n");
 				 }
 			 	break;
 			 case TEMP_HEATER:
 				 //heater_state = sg.value.sival_int;
 				 if(msg.value.sival_int == ON){
 					strcpy(heater_state, "ON");
-					printf("Pulse received:\n[DISPLAY] Heater has turned on\n");
+					//printf("Pulse received:\n[DISPLAY] Heater has turned on\n");
 				 }else if(msg.value.sival_int == OFF){
 					strcpy(heater_state, "OFF");
-					printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
+					// printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
 				 }
 			 	 break;
 			 default:
