@@ -130,9 +130,10 @@ int main(void) {
 	/*****************************************************************************
 	 * Start the Display Logics
 	 *****************************************************************************/
+	printf("Preparing to receive data pulses\n\n");
 	while (running) {
 		//receive message
-		printf("waiting for data pulse\n");
+
 		rcvid = MsgReceive(attach->chid, &msg, sizeof(msg), 0);
 		 if (0 == rcvid) {
 
@@ -143,9 +144,18 @@ int main(void) {
 					perror("ConnectDetach");
 				}
 				break;
+			 case KILL_ALL:
+			 	 printf("Pulse received:\n[DISPLAY] Killing all processes\n");
+			 	 break;
 			 case TEMP_DATA:
-				 printf("[DISPLAY] Temperature Sensor: %d\n", msg.value);
+				 printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
 				 break;
+			 case TEMP_AC:
+			 	printf("Pulse received:\n[DISPLAY] AC has turned on\n");
+			 	break;
+			 case TEMP_DATA:
+			 	 printf("Pulse received:\n[DISPLAY] Heater has turned on\n");
+			 	 break;
 			 default:
 				 printf("Unexpected pulse code: %d", msg.code);
 				 break;
