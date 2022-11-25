@@ -66,11 +66,8 @@ typedef struct resp_actu_state_msg {
 /*********************************
  *  ACTUATOR CONSTANTS
  *********************************/
-#define UP 1
-#define DOWN 2
-
 #define ON 1
-#define OFF 3
+#define OFF 2
 
 /*SENSOR TYPES*/
 #define TEMPERATURE 1

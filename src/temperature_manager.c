@@ -32,7 +32,7 @@ void set_exit_flag(int sig_no);
 int main(int argc, char **argv){
 	FILE *log_file;
 	log_file = fopen("/tmp/temp_manager.log", "w");
-	logString(log_file, "Starting temp manager\n");
+	logString(log_file, "Starting temp manager");
 	int temp_coid, display_coid, ac_coid, heater_coid;
 	int ac_state = OFF;
 	int heater_state = OFF;
@@ -40,7 +40,7 @@ int main(int argc, char **argv){
 	/* Connect to the temperature sensor server */
 	temp_coid = name_open(TEMPERATURE_SERVER, 0);
 	if (temp_coid == -1){
-		logString(log_file, "Failed to connect to temp server: %s\n", strerror(errno));
+		logString(log_file, "Failed to connect to temp server: %s", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -48,21 +48,21 @@ int main(int argc, char **argv){
 	/* Connect to the display server */
 	display_coid = name_open(DISPLAY_SERVER, 0);
 	if (display_coid == -1){
-		logString(log_file, "Failed to connect to display server: %s\n", strerror(errno));
+		logString(log_file, "Failed to connect to display server: %s", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	/* Connect to the A/C server */
 	ac_coid = name_open(AIR_CONDITIONER_ACTUATOR_SERVER, 0);
 	if (ac_coid == -1){
-		logString(log_file, "Failed to connect to A/C server: %s\n", strerror(errno));
+		logString(log_file, "Failed to connect to A/C server: %s", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	/* Connect to the heater server */
 	heater_coid = name_open(HEATER_ACTUATOR_SERVER, 0);
 	if (ac_coid == -1){
-		logString(log_file, "Failed to connect to heater server: %s\n", strerror(errno));
+		logString(log_file, "Failed to connect to heater server: %s", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
@@ -78,28 +78,28 @@ int main(int argc, char **argv){
 			logString(log_file, "Failed to get data from sensor: %s", strerror(errno));
 			exit(EXIT_FAILURE);
 		}
-		logString(log_file, "GOT DATA: %.2f\n", resp.data);
+		logString(log_file, "GOT DATA: %.2f", resp.data);
 
 
 		/*****************************************
 		 * PULSE TO DISLPAY
 		 *****************************************/
 		if(MsgSendPulse(display_coid, -1, TEMP_DATA, resp.data) == 1){
-			logString(log_file, "Failed to connect to send data pulse to display: %s\n", strerror(errno));
+			logString(log_file, "Failed to connect to send data pulse to display: %s", strerror(errno));
 			exit(EXIT_FAILURE);
 		}
-		logString(log_file, "Pulsed DATA: %.2f\n", resp.data);
+		logString(log_file, "Pulsed DATA: %.2f", resp.data);
 
 		/*****************************************
 		 * CHECK THRESHOLDS AND ACTUATORS
 		 *****************************************/
 		if(resp.data > MAX_TEMP){
-			logString(log_file, "Above max temp\n");
+			logString(log_file, "Above max temp");
 
 
 			// Turn the A/C Unit ON
 			if(ac_state == OFF){
-				logString(log_file, "TURN AC ON\n");
+				logString(log_file, "TURN AC ON");
 
 				/*Build actuator msg*/
 				cmd_actu_chng_state_msg_t msg;
@@ -108,7 +108,7 @@ int main(int argc, char **argv){
 
 				resp_actu_state_msg_t resp_state;
 				if(MsgSend(ac_coid, &msg, sizeof(msg), &resp_state, sizeof(resp_state)) == -1){
-					logString(log_file, "Failed to connect to send ON to A/C: %s\n", strerror(errno));
+					logString(log_file, "Failed to connect to send ON to A/C: %s", strerror(errno));
 					exit(EXIT_FAILURE);
 				}
 				ac_state = resp_state.state;
@@ -116,7 +116,7 @@ int main(int argc, char **argv){
 
 			// Turn the heater Unit OFF
 			if(heater_state == ON){
-				logString(log_file, "TURN HEATER OFF\n");
+				logString(log_file, "TURN HEATER OFF");
 
 
 				/*Build actuator msg*/
@@ -126,7 +126,7 @@ int main(int argc, char **argv){
 
 				resp_actu_state_msg_t resp_state;
 				if(MsgSend(heater_coid, &msg, sizeof(msg), &resp_state, sizeof(resp_state)) == -1){
-					logString(log_file, "Failed to connect to send OFF to Heater: %s\n", strerror(errno));
+					logString(log_file, "Failed to connect to send OFF to Heater: %s", strerror(errno));
 					exit(EXIT_FAILURE);
 				}
 				heater_state = resp_state.state;
@@ -136,12 +136,12 @@ int main(int argc, char **argv){
 
 
 		} else if (resp.data < MIN_TEMP){
-			logString(log_file, "Below min temp\n");
+			logString(log_file, "Below min temp");
 
 
-			// Turn the A/C Unit ON
+			// Turn the A/C Unit OFF
 			if(ac_state == ON){
-				logString(log_file, "TURN AC OFF\n");
+				logString(log_file, "TURN AC OFF");
 
 
 				/*Build actuator msg*/
@@ -151,13 +151,13 @@ int main(int argc, char **argv){
 
 				resp_actu_state_msg_t resp_state;
 				if(MsgSend(ac_coid, &msg, sizeof(msg), &resp_state, sizeof(resp_state)) == -1){
-					logString(log_file, "Failed to connect to send OFF to A/C: %s\n", strerror(errno));
+					logString(log_file, "Failed to connect to send OFF to A/C: %s", strerror(errno));
 					exit(EXIT_FAILURE);
 				}
 				ac_state = resp_state.state;
 			}
 
-			// Turn the heater Unit OFF
+			// Turn the heater Unit ON
 			if(heater_state == OFF){
 				logString(log_file, "TURN HEATER ON\n");
 
@@ -169,7 +169,7 @@ int main(int argc, char **argv){
 
 				resp_actu_state_msg_t resp_state;
 				if(MsgSend(heater_coid, &msg, sizeof(msg), &resp_state, sizeof(resp_state)) == -1){
-					logString(log_file, "Failed to connect to send ON to Heater: %s\n", strerror(errno));
+					logString(log_file, "Failed to connect to send ON to Heater: %s", strerror(errno));
 					exit(EXIT_FAILURE);
 				}
 				heater_state = resp_state.state;
@@ -179,7 +179,7 @@ int main(int argc, char **argv){
 
 		} else {
 
-			// Turn the A/C Unit ON
+			// Turn the A/C Unit OFF
 			if(ac_state == ON){
 				logString(log_file, "TURN AC OFF\n");
 
@@ -191,14 +191,14 @@ int main(int argc, char **argv){
 
 				resp_actu_state_msg_t resp_state;
 				if(MsgSend(ac_coid, &msg, sizeof(msg), &resp_state, sizeof(resp_state)) == -1){
-					logString(log_file, "Failed to connect to send OFF to A/C: %s\n", strerror(errno));
+					logString(log_file, "Failed to connect to send OFF to A/C: %s", strerror(errno));
 					exit(EXIT_FAILURE);
 				}
 				ac_state = resp_state.state;
 			}
 
 			// Turn the heater Unit OFF
-			if(heater_state == ON){
+			if(heater_state == OFF){
 				logString(log_file, "TURN HEATER OFF\n");
 
 				/*Build actuator msg*/
@@ -208,7 +208,7 @@ int main(int argc, char **argv){
 
 				resp_actu_state_msg_t resp_state;
 				if(MsgSend(heater_coid, &msg, sizeof(msg), &resp_state, sizeof(resp_state)) == -1){
-					logString(log_file, "Failed to connect to send OFF to Heater: %s\n", strerror(errno));
+					logString(log_file, "Failed to connect to send OFF to Heater: %s", strerror(errno));
 					exit(EXIT_FAILURE);
 				}
 				heater_state = resp_state.state;
@@ -220,11 +220,11 @@ int main(int argc, char **argv){
 		 * PULSE THE UPDATED ACTUATOR STATES
 		 ****************************************/
 		if(MsgSendPulse(display_coid, -1, TEMP_AC, ac_state) == 1){
-			logString(log_file, "Failed to send AC actuator state pulse to display: %s\n", strerror(errno));
+			logString(log_file, "Failed to send AC actuator state pulse to display: %s", strerror(errno));
 			exit(EXIT_FAILURE);
 		}
 		if(MsgSendPulse(display_coid, -1, TEMP_HEATER, heater_state) == 1){
-			logString(log_file, "Failed to send HEATER actuator state pulse to display: %s\n", strerror(errno));
+			logString(log_file, "Failed to send HEATER actuator state pulse to display: %s", strerror(errno));
 			exit(EXIT_FAILURE);
 		}
 

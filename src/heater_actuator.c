@@ -2,7 +2,7 @@
  * heater_actuator.c
  *
  *	Driver for actuating the heater.
- *	Receives messages from the the temperature_actuator meta-driver and sends commands to the environment simulation process
+ *	Receives messages from the the temperature_manager and sends commands to the environment simulation process
  *
  *  Created on: Nov. 22, 2022
  */
@@ -24,7 +24,7 @@
 #include "utilities.h"
 
 /*
- * Struct for get messages
+ * Struct for cmd messages
  */
 typedef union
 {
@@ -32,6 +32,14 @@ typedef union
 	struct _pulse pulse;
 	cmd_actu_chng_state_msg_t cmd;
 } recv_cmd_t;
+
+/* Track the running state in an atomic var modified by signal handler*/
+volatile sig_atomic_t running = 1;
+
+
+/* Functions */
+void set_exit_flag(int sig_no);
+
 
 int main(void) {
 	FILE *log_file;
@@ -53,7 +61,7 @@ int main(void) {
 	logString(log_file, "Starting Server");
 
 
-	while (1) {
+	while (running) {
 		//receive message
 		rcvid = MsgReceive(attach->chid, &rbuf, sizeof(rbuf), NULL);
 
@@ -71,23 +79,14 @@ int main(void) {
 			 }
 
 		} else {
-			long status = EOK;
 			// we got a message, check its type and process the msg based on its type
 			switch(rbuf.type){
 			case COMMAND_ACTUATOR_STATE:
 				logString(log_file, "Received command: %d", rbuf.cmd.state);
-				if(rbuf.cmd.state == UP || rbuf.cmd.state == OFF)
-				{
-					// Change the state of the actuator
-					state = rbuf.cmd.state;
+				// Change the state of the actuator
+				state = rbuf.cmd.state;
 
-					//TODO: SEND MESSAGE TO ENVIRONMENT SIMULATOR
-				}
-				else
-				{
-					logString(log_file, "ERROR: %d is an invalid state for heater", rbuf.cmd.state);
-					status = EPERM;
-				}
+				//TODO: SEND MESSAGE TO ENVIRONMENT SIMULATOR
 
 				/* Build the response */
 				resp_actu_state_msg_t resp;
@@ -95,7 +94,7 @@ int main(void) {
 				logString(log_file, "Replying with current state: %d", state);
 
 				/* Send data back */
-				MsgReply(rcvid, status, &resp, sizeof(resp));
+				MsgReply(rcvid, EOK, &resp, sizeof(resp));
 				break;
 			default:
 				logString(log_file, "Received unknown message type: %d", rbuf.type);
@@ -103,6 +102,11 @@ int main(void) {
 			}
 		}
 	}
-	//TODO: Clean up with name_dettatch in the sigin handler
-	return 0;
+	fclose(log_file);
+	name_detach(attach, 0);
+	return EXIT_SUCCESS;
+}
+
+void set_exit_flag(int sig_no){
+	running = 0;
 }

@@ -8,7 +8,7 @@
 
 #include "constants.h"
 
-#define NUM_PIDS 5
+#define NUM_PIDS 4
 
 /********************************
  * Signals
@@ -90,19 +90,12 @@ int main(void) {
 		exit(EXIT_FAILURE);
 	}
 
-	char *temp_act_args[] = {"/tmp/temperature_actuator", NULL};
-	rars_pids[3] = spawn("/tmp/temperature_actuator", 0, NULL, NULL, temp_act_args, NULL);
-	if(rars_pids[3] == -1){
-		perror("Failed to spawn temp actuator");
-		exit(EXIT_FAILURE);
-	}
-
 	/*****************************************************************************
 	 * Create the temp manager clients for the sensors
 	 *****************************************************************************/
 	char *tm_args[] = {"/tmp/temperature_manager", TEMPERATURE_SENSOR_SERVER, NULL};
-	rars_pids[4] = spawn("/tmp/temperature_manager", 0, NULL, NULL, tm_args, NULL);
-	if(rars_pids[4] == -1){
+	rars_pids[3] = spawn("/tmp/temperature_manager", 0, NULL, NULL, tm_args, NULL);
+	if(rars_pids[3] == -1){
 		perror("Failed to spawn temp manager");
 		exit(EXIT_FAILURE);
 	}
@@ -177,26 +170,26 @@ int main(void) {
 			 	 printf("Pulse received:\n[DISPLAY] Killing all processes\n");
 			 	 break;
 			 case TEMP_DATA:
-				 //printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
+				 printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
 				 temp = msg.value.sival_int;
 				 break;
 			 case TEMP_AC:
 				 if(msg.value.sival_int == ON){
 					strcpy(ac_state, "ON");
-					//printf("Pulse received:\n[DISPLAY] AC has turned on\n");
+					printf("Pulse received:\n[DISPLAY] AC has turned on\n");
 				 }else if(msg.value.sival_int == OFF){
 					strcpy(ac_state, "OFF");
-					//printf("Pulse received:\n[DISPLAY] AC has turned off\n");
+					printf("Pulse received:\n[DISPLAY] AC has turned off\n");
 				 }
 			 	break;
 			 case TEMP_HEATER:
 				 //heater_state = sg.value.sival_int;
 				 if(msg.value.sival_int == ON){
 					strcpy(heater_state, "ON");
-					//printf("Pulse received:\n[DISPLAY] Heater has turned on\n");
+					printf("Pulse received:\n[DISPLAY] Heater has turned on\n");
 				 }else if(msg.value.sival_int == OFF){
 					strcpy(heater_state, "OFF");
-					//printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
+					printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
 				 }
 			 	 break;
 			 default:
