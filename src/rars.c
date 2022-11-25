@@ -4,6 +4,7 @@
 #include <sys/neutrino.h>
 #include <unistd.h>
 #include <sys/dispatch.h>
+#include <string.h>
 
 #include "constants.h"
 
@@ -130,13 +131,32 @@ int main(void) {
 	/*****************************************************************************
 	 * Start the Display Logics
 	 *****************************************************************************/
+
+	//Store the data for the print
+	float temp;
+	char *ac_state = malloc(sizeof(char)*8);
+	char *heater_state = malloc(sizeof(char)*8);
+
+	// Create a timer to periodically print the display
+	struct sigevent sigevent;
+	struct itimerspec itime;
+	timer_t timerID;
+	int event_coid;
+	event_coid = ConnectAttach(0, 0, attach->chid, _NTO_SIDE_CHANNEL, 0);
+	SIGEV_PULSE_INIT(&sigevent, event_coid, SIGEV_PULSE_PRIO_INHERIT, TIMER_PULSE_CODE, 0);
+	timer_create(CLOCK_REALTIME, &sigevent, &timerID);
+	itime.it_value.tv_sec = 3;
+	itime.it_interval.tv_sec = 2;
+	timer_settime(timerID, 0, &itime, NULL);
+
 	printf("Preparing to receive data pulses\n\n");
 	while (running) {
 		//receive message
+		//char ac_state[6];
+
 
 		rcvid = MsgReceive(attach->chid, &msg, sizeof(msg), 0);
 		 if (0 == rcvid) {
-
 			 switch(msg.code){
 			 case _PULSE_CODE_DISCONNECT:
 				printf("Received disconnect from pulse\n");
@@ -144,24 +164,39 @@ int main(void) {
 					perror("ConnectDetach");
 				}
 				break;
+			 case TIMER_PULSE_CODE:
+				 printf("******************************\n\tSENSORS\n******************************\n");
+				 printf("Temperature Sensor: %.2f\n\n", temp);
+				 printf("******************************\n\tACTUATORS\n******************************\n");
+				 printf("A/C Unit:\t\t%s\n", ac_state);
+				 printf("Heating Unit:\t\t%s\n", heater_state);
+				 printf("\n\n\n\n\n");
+
+				 break;
 			 case KILL_ALL:
 			 	 printf("Pulse received:\n[DISPLAY] Killing all processes\n");
 			 	 break;
 			 case TEMP_DATA:
-				 printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
+				 //printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
+				 temp = msg.value.sival_int;
 				 break;
 			 case TEMP_AC:
 				 if(msg.value.sival_int == ON){
-					printf("Pulse received:\n[DISPLAY] AC has turned on\n");
+					strcpy(ac_state, "ON");
+					//printf("Pulse received:\n[DISPLAY] AC has turned on\n");
 				 }else if(msg.value.sival_int == OFF){
-					printf("Pulse received:\n[DISPLAY] AC has turned off\n");
+					strcpy(ac_state, "OFF");
+					//printf("Pulse received:\n[DISPLAY] AC has turned off\n");
 				 }
 			 	break;
 			 case TEMP_HEATER:
+				 //heater_state = sg.value.sival_int;
 				 if(msg.value.sival_int == ON){
-					printf("Pulse received:\n[DISPLAY] Heater has turned on\n");
+					strcpy(heater_state, "ON");
+					//printf("Pulse received:\n[DISPLAY] Heater has turned on\n");
 				 }else if(msg.value.sival_int == OFF){
-					printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
+					strcpy(heater_state, "OFF");
+					//printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
 				 }
 			 	 break;
 			 default:
