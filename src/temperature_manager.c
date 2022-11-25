@@ -88,18 +88,18 @@ int main(int argc, char **argv){
 			logString(log_file, "Failed to connect to send data pulse to display: %s\n", strerror(errno));
 			exit(EXIT_FAILURE);
 		}
-		logString(log_file, "Pulsed DATA: %.2f. Now sleeping 2 seconds\n", resp.data);
+		logString(log_file, "Pulsed DATA: %.2f\n", resp.data);
 
 		/*****************************************
 		 * CHECK THRESHOLDS AND ACTUATORS
 		 *****************************************/
 		if(resp.data > MAX_TEMP){
-			logString(log_file, "Above max temp");
+			logString(log_file, "Above max temp\n");
 
 
 			// Turn the A/C Unit ON
 			if(ac_state == OFF){
-				logString(log_file, "TURN AC ON");
+				logString(log_file, "TURN AC ON\n");
 
 				/*Build actuator msg*/
 				cmd_actu_chng_state_msg_t msg;
@@ -116,7 +116,7 @@ int main(int argc, char **argv){
 
 			// Turn the heater Unit OFF
 			if(heater_state == ON){
-				logString(log_file, "TURN HEATER OFF");
+				logString(log_file, "TURN HEATER OFF\n");
 
 
 				/*Build actuator msg*/
@@ -136,12 +136,12 @@ int main(int argc, char **argv){
 
 
 		} else if (resp.data < MIN_TEMP){
-			logString(log_file, "Below min temp");
+			logString(log_file, "Below min temp\n");
 
 
 			// Turn the A/C Unit ON
 			if(ac_state == ON){
-				logString(log_file, "TURN AC OFF");
+				logString(log_file, "TURN AC OFF\n");
 
 
 				/*Build actuator msg*/
@@ -159,7 +159,7 @@ int main(int argc, char **argv){
 
 			// Turn the heater Unit OFF
 			if(heater_state == OFF){
-				logString(log_file, "TURN HEATER ON");
+				logString(log_file, "TURN HEATER ON\n");
 
 
 				/*Build actuator msg*/
@@ -181,7 +181,7 @@ int main(int argc, char **argv){
 
 			// Turn the A/C Unit ON
 			if(ac_state == ON){
-				logString(log_file, "TURN AC OFF");
+				logString(log_file, "TURN AC OFF\n");
 
 
 				/*Build actuator msg*/
@@ -199,7 +199,7 @@ int main(int argc, char **argv){
 
 			// Turn the heater Unit OFF
 			if(heater_state == ON){
-				logString(log_file, "TURN HEATER OFF");
+				logString(log_file, "TURN HEATER OFF\n");
 
 				/*Build actuator msg*/
 				cmd_actu_chng_state_msg_t msg;
@@ -214,6 +214,18 @@ int main(int argc, char **argv){
 				heater_state = resp_state.state;
 
 			}
+		}
+
+		/***************************************
+		 * PULSE THE UPDATED ACTUATOR STATES
+		 ****************************************/
+		if(MsgSendPulse(display_coid, -1, TEMP_AC, ac_state) == 1){
+			logString(log_file, "Failed to send AC actuator state pulse to display: %s\n", strerror(errno));
+			exit(EXIT_FAILURE);
+		}
+		if(MsgSendPulse(display_coid, -1, TEMP_HEATER, heater_state) == 1){
+			logString(log_file, "Failed to send HEATER actuator state pulse to display: %s\n", strerror(errno));
+			exit(EXIT_FAILURE);
 		}
 
 		sleep(2);

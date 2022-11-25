@@ -151,10 +151,18 @@ int main(void) {
 				 printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
 				 break;
 			 case TEMP_AC:
-			 	printf("Pulse received:\n[DISPLAY] AC has turned on\n");
+				 if(msg.value.sival_int == ON){
+					printf("Pulse received:\n[DISPLAY] AC has turned on\n");
+				 }else if(msg.value.sival_int == OFF){
+					printf("Pulse received:\n[DISPLAY] AC has turned off\n");
+				 }
 			 	break;
-			 case TEMP_DATA:
-			 	 printf("Pulse received:\n[DISPLAY] Heater has turned on\n");
+			 case TEMP_HEATER:
+				 if(msg.value.sival_int == ON){
+					printf("Pulse received:\n[DISPLAY] Heater has turned on\n");
+				 }else if(msg.value.sival_int == OFF){
+					printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
+				 }
 			 	 break;
 			 default:
 				 printf("Unexpected pulse code: %d", msg.code);
