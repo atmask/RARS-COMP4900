@@ -32,7 +32,10 @@ int main(void) {
 	struct _pulse msg;
 	int rcvid;
 
-	printf("Starting display;\n");
+	printf("**************************************************************\n");
+	printf("\tWELCOME TO THE REAL-TIME AGRICULTURAL SYSTEM (RARS)\n");
+	printf("**************************************************************\n\n\n");
+
 
 	attach = name_attach(NULL, DISPLAY_SERVER, 0);
 	if (attach == NULL){
@@ -146,7 +149,6 @@ int main(void) {
 	itime.it_interval.tv_nsec = 0;
 	timer_settime(timerID, 0, &itime, NULL);
 
-	printf("Preparing to receive data pulses\n\n");
 	while (running) {
 		rcvid = MsgReceive(attach->chid, &msg, sizeof(msg), 0);
 		 if (0 == rcvid) {
@@ -163,7 +165,7 @@ int main(void) {
 				 printf("******************************\n\tACTUATORS\n******************************\n");
 				 printf("A/C Unit:\t\t%s\n", ac_state);
 				 printf("Heating Unit:\t\t%s\n", heater_state);
-				 printf("\n\n\n\n\n");
+				 printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
 				 break;
 			 case KILL_ALL:
