@@ -45,6 +45,7 @@ int main(void) {
 	FILE *log_file;
 	int 			state = OFF;
 	int 			rcvid;
+	int 			envSim_coid;
 	name_attach_t 	*attach;
 	recv_cmd_t 		rbuf;
 
@@ -58,6 +59,13 @@ int main(void) {
 		logString(log_file, "Could not start server. %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
+
+	envSim_coid = name_open(ENVIRONMENT_SIMULATOR_SERVER, 0);
+	if (envSim_coid == -1){
+		logString(log_file, "Failed to connect to environment simulation server: %s", strerror(errno));
+		exit(EXIT_FAILURE);
+	}
+
 	logString(log_file, "Starting Server");
 
 
@@ -86,7 +94,11 @@ int main(void) {
 				// Change the state of the actuator
 				state = rbuf.cmd.state;
 
-				//TODO: SEND MESSAGE TO ENVIRONMENT SIMULATOR
+				// Send pulse to environment simulator
+				if(MsgSendPulse(envSim_coid, -1, HEATER_ACTUATOR_CHANGE, state) == 1){
+					logString(log_file, "Failed to send state pulse to environment sim: %s", strerror(errno));
+					exit(EXIT_FAILURE);
+				}
 
 				/* Build the response */
 				resp_actu_state_msg_t resp;

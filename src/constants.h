@@ -14,12 +14,12 @@
 /**********************************************
  * SERVER NAMES
  ********************************************/
-#define TEMPERATURE_SERVER "temperature_sensor"
 #define DISPLAY_SERVER "display"
 #define TEMPERATURE_SENSOR_SERVER "temperature_sensor"
-#define TEMPERATURE_ACTUATOR_SERVER "temperature_actuator"
 #define HEATER_ACTUATOR_SERVER "heater_actuator"
 #define AIR_CONDITIONER_ACTUATOR_SERVER "air_conditioner_actuator"
+#define ENVIRONMENT_SIMULATOR_SERVER "environment_simulator"
+
 
 /**********************************************
  * MESSAGE TYPES
@@ -27,7 +27,6 @@
 #define GET_DATA (_IO_MAX+1)
 #define SENSOR_DATA (_IO_MAX+2)
 #define COMMAND_ACTUATOR_STATE (_IO_MAX+3)
-#define ACTUATOR_STATE (_IO_MAX+4)
 
 /**********************************************
  * SENSOR SERVER MESSAGE STRUCTS
@@ -62,16 +61,18 @@ typedef struct resp_actu_state_msg {
 #define TEMP_HEATER (_PULSE_CODE_MINAVAIL+4)
 #define TIMER_PULSE_CODE (_PULSE_CODE_MINAVAIL+5)
 
+/*********************************************
+ *    PULSE CODES FOR ENVIRONMENT SIMULATOR
+ *********************************************/
+#define AIR_CONDITIONER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+6)
+#define HEATER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+7)
 
 /*********************************
  *  ACTUATOR CONSTANTS
  *********************************/
+/*ACTUATOR STATES*/
 #define ON 1
 #define OFF 2
-
-/*SENSOR TYPES*/
-#define TEMPERATURE 1
-
 
 /*********************************
  *  SENSOR TRHRESHOLDS

@@ -8,7 +8,7 @@
 
 #include "constants.h"
 
-#define NUM_PIDS 4
+#define NUM_PIDS 5
 
 /********************************
  * Signals
@@ -64,13 +64,24 @@ int main(void) {
 	FILE *write_file = fdopen(temp_sensor_fd[1], "w");
 	fprintf(write_file, "24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 31.0");
 
+	/* Map the write end of pipe to stdin (could just not and it would keep same fd but this is fine for now)*/
+	char *es_args[] = {"/tmp/temperature_sensor", NULL};
+	int es_fd_map[] = {temp_sensor_fd[1]};
+
+	/*Create environment simulator proc*/
+	rars_pids[0] = spawn("/tmp/environment_simulator", 1, es_fd_map, NULL, es_args, NULL);
+	if(rars_pids[0] == -1){
+		perror("Failed to spawn environment simulator");
+		exit(EXIT_FAILURE);
+	}
+
 	/* Map the read end of pipe to stdin (could just not and it would keep same fd but this is fine for now)*/
 	char *ts_args[] = {"/tmp/temperature_sensor", NULL};
 	int ts_fd_map[] = {temp_sensor_fd[0]};
 
 	/*Create temp sensor proc*/
-	rars_pids[0] = spawn("/tmp/temperature_sensor", 1, ts_fd_map, NULL, ts_args, NULL);
-	if(rars_pids[0] == -1){
+	rars_pids[1] = spawn("/tmp/temperature_sensor", 1, ts_fd_map, NULL, ts_args, NULL);
+	if(rars_pids[1] == -1){
 		perror("Failed to spawn temp sensor");
 		exit(EXIT_FAILURE);
 	}
@@ -80,15 +91,15 @@ int main(void) {
 	 * Create the temp actuators
 	 *****************************************************************************/
 	char *ac_args[] = {"/tmp/air_conditioner_actuator", NULL};
-	rars_pids[1] = spawn("/tmp/air_conditioner_actuator", 0, NULL, NULL, ac_args, NULL);
-	if(rars_pids[1] == -1){
+	rars_pids[2] = spawn("/tmp/air_conditioner_actuator", 0, NULL, NULL, ac_args, NULL);
+	if(rars_pids[2] == -1){
 		perror("Failed to spawn A/C actuator");
 		exit(EXIT_FAILURE);
 	}
 
 	char *heater_args[] = {"/tmp/heater_actuator", NULL};
-	rars_pids[2] = spawn("/tmp/heater_actuator", 0, NULL, NULL, heater_args, NULL);
-	if(rars_pids[2] == -1){
+	rars_pids[3] = spawn("/tmp/heater_actuator", 0, NULL, NULL, heater_args, NULL);
+	if(rars_pids[3] == -1){
 		perror("Failed to spawn heater actuator");
 		exit(EXIT_FAILURE);
 	}
@@ -97,8 +108,8 @@ int main(void) {
 	 * Create the temp manager clients for the sensors
 	 *****************************************************************************/
 	char *tm_args[] = {"/tmp/temperature_manager", TEMPERATURE_SENSOR_SERVER, NULL};
-	rars_pids[3] = spawn("/tmp/temperature_manager", 0, NULL, NULL, tm_args, NULL);
-	if(rars_pids[3] == -1){
+	rars_pids[4] = spawn("/tmp/temperature_manager", 0, NULL, NULL, tm_args, NULL);
+	if(rars_pids[4] == -1){
 		perror("Failed to spawn temp manager");
 		exit(EXIT_FAILURE);
 	}

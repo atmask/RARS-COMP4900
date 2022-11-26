@@ -38,7 +38,7 @@ int main(int argc, char **argv){
 	int heater_state = OFF;
 
 	/* Connect to the temperature sensor server */
-	temp_coid = name_open(TEMPERATURE_SERVER, 0);
+	temp_coid = name_open(TEMPERATURE_SENSOR_SERVER, 0);
 	if (temp_coid == -1){
 		logString(log_file, "Failed to connect to temp server: %s", strerror(errno));
 		exit(EXIT_FAILURE);
