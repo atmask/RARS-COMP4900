@@ -198,7 +198,7 @@ int main(int argc, char **argv){
 			}
 
 			// Turn the heater Unit OFF
-			if(heater_state == OFF){
+			if(heater_state == ON){
 				logString(log_file, "TURN HEATER OFF\n");
 
 				/*Build actuator msg*/
