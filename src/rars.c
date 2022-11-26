@@ -141,11 +141,19 @@ int main(void) {
 	 *****************************************************************************/
 
 	//Store the data for the print
+	//temp
 	float temp;
 	char ac_state[8];
 	char heater_state[8];
 	strcpy(ac_state, "OFF");
 	strcpy(heater_state, "OFF");
+
+	//humidity
+	float humid;
+	char humidifier[8];
+	char dehumidifier[8];
+	strcpy(humidifier, "OFF");
+	strcpy(dehumidifier, "OFF");
 
 	// Create a timer to periodically print the display
 	struct sigevent sigevent;
@@ -172,12 +180,15 @@ int main(void) {
 				}
 				break;
 			 case TIMER_PULSE_CODE:
-				 printf("******************************\n\tSENSORS\n******************************\n");
+				 printf("************************************************************\n\t\tSENSORS\n************************************************************\n");
 				 printf("Temperature Sensor: %.2f\n\n", temp);
-				 printf("******************************\n\tACTUATORS\n******************************\n");
-				 printf("A/C Unit:\t\t%s\n", ac_state);
-				 printf("Heating Unit:\t\t%s\n", heater_state);
-				 printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+				 printf("Humidity Sensor: %.2f\n\n", humid);
+				 printf("************************************************************\n\t\tACTUATORS\n************************************************************\n");
+				 printf("A/C Unit:\t\t\t%s\n", ac_state);
+				 printf("Heating Unit:\t\t\t%s\n\n", heater_state);
+				 printf("Dehumidifier Unit:\t\t%s\n", dehumidifier);
+ 				 printf("Humidifier Unit:\t\t%s\n\n", humidifier);
+				 printf("\n\n\n\n\n\n\n\n\n");
 
 				 break;
 			 case KILL_ALL:
@@ -206,6 +217,29 @@ int main(void) {
 					// printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
 				 }
 			 	 break;
+			 case HUMID_DATA:
+			 	 //printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
+			 	 humid = msg.value.sival_int;
+			 	 break;
+			 case HUMID_DEHUMIDIFIER:
+			 	 if(msg.value.sival_int == ON){
+			 		strcpy(dehumidifier, "ON");
+			 		//printf("Pulse received:\n[DISPLAY] AC has turned on\n");
+			 	 }else if(msg.value.sival_int == OFF){
+			 		strcpy(dehumidifier, "OFF");
+			 		//printf("Pulse received:\n[DISPLAY] AC has turned off\n");
+			 	 }
+			  	break;
+			  case HUMID_HUMIDIFIER:
+			 	 //heater_state = sg.value.sival_int;
+			 	 if(msg.value.sival_int == ON){
+			 		strcpy(humidifier, "ON");
+			 		//printf("Pulse received:\n[DISPLAY] Heater has turned on\n");
+			 	 }else if(msg.value.sival_int == OFF){
+			 		strcpy(humidifier, "OFF");
+			 		// printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
+			 	 }
+			  	 break;
 			 default:
 				 printf("Unexpected pulse code: %d", msg.code);
 				 break;

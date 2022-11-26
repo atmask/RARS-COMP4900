@@ -56,10 +56,16 @@ typedef struct resp_actu_state_msg {
  *  PULSE CODES FOR DISPLAY
  *********************************/
 #define KILL_ALL (_PULSE_CODE_MINAVAIL+1)
+//temp vars
 #define TEMP_DATA (_PULSE_CODE_MINAVAIL+2)
 #define TEMP_AC (_PULSE_CODE_MINAVAIL+3)
 #define TEMP_HEATER (_PULSE_CODE_MINAVAIL+4)
+//timer
 #define TIMER_PULSE_CODE (_PULSE_CODE_MINAVAIL+5)
+//humid vars
+#define HUMID_DATA (_PULSE_CODE_MINAVAIL+6)
+#define HUMID_HUMIDIFIER (_PULSE_CODE_MINAVAIL+7)
+#define HUMID_DEHUMIDIFIER (_PULSE_CODE_MINAVAIL+8)
 
 /*********************************************
  *    PULSE CODES FOR ENVIRONMENT SIMULATOR
