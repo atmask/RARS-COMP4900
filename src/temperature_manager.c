@@ -159,7 +159,7 @@ int main(int argc, char **argv){
 
 			// Turn the heater Unit ON
 			if(heater_state == OFF){
-				logString(log_file, "TURN HEATER ON\n");
+				logString(log_file, "TURN HEATER ON");
 
 
 				/*Build actuator msg*/
@@ -181,7 +181,7 @@ int main(int argc, char **argv){
 
 			// Turn the A/C Unit OFF
 			if(ac_state == ON){
-				logString(log_file, "TURN AC OFF\n");
+				logString(log_file, "TURN AC OFF");
 
 
 				/*Build actuator msg*/
@@ -198,8 +198,8 @@ int main(int argc, char **argv){
 			}
 
 			// Turn the heater Unit OFF
-			if(heater_state == OFF){
-				logString(log_file, "TURN HEATER OFF\n");
+			if(heater_state == ON){
+				logString(log_file, "TURN HEATER OFF");
 
 				/*Build actuator msg*/
 				cmd_actu_chng_state_msg_t msg;

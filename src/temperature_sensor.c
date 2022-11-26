@@ -43,6 +43,8 @@ volatile sig_atomic_t running = 1;
 
 pthread_mutex_t temp_data_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+float 			temp_data;
+
 /* Functions*/
 void *runServer();
 void *readData();
@@ -51,7 +53,6 @@ void *readData();
  * Structs for passing data to thread functions
  */
 struct thread_args {
-	char* temp_data;
 	FILE *log_file;
 };
 
@@ -85,21 +86,15 @@ int main(void) {
 	log_file2 = fopen("/tmp/sensor_server.log", "w");
 	logString(log_file2, "Starting temp sensor");
 
-
-//	char temperature_data[BUFFER_SIZE];
-	char temperature_data[] = {'1', '8', 0};
-
 	pthread_t read_thread, server_thread;
 
 
 	/*Spawn readData and runServer threads*/
 	struct thread_args server_args;
-	server_args.temp_data = temperature_data;
 	server_args.log_file = log_file2;
 	pthread_create(&server_thread, NULL, runServer, &server_args);
 
 	struct thread_args t_args;
-	t_args.temp_data = temperature_data;
 	t_args.log_file = log_file1;
 	pthread_create(&read_thread, NULL, readData, &t_args);
 
@@ -116,27 +111,20 @@ void *readData(void *args){
 	/*Pull args from the thread_args*/
 	struct thread_args *t_args = (struct thread_args *) args;
 	FILE *log_file = t_args->log_file;
-	char *temp_data = t_args->temp_data;
 
 	while(running){
-		logString(log_file, "get mutex");
 		/* Lock the mutex */
 		pthread_mutex_lock(&temp_data_mutex);
 
 		/* Scanf to get the temp
 		 * N.B. Scanf reads up the whitespace
 		 * */
-		//fscanf(stdin, "%s", temp_data);
+		fscanf(stdin, "%f", &temp_data);
+		logString(log_file, "Read data: %f", temp_data);
 
-		logString(log_file, "Read data: %s", temp_data);
-
-		if(strcmp(temp_data, "31.0") == 0){
-			logString(log_file, "Done reading");
-			break;
-		}
 		pthread_mutex_unlock(&temp_data_mutex);
 
-		sleep(3);
+		sleep(1);
 	}
 
 	/* Cleanup */
@@ -148,8 +136,6 @@ void *runServer(void *args){
 	/*Pull args from the thread_args*/
 	struct thread_args *t_args = (struct thread_args *) args;
 	FILE *log_file = t_args->log_file;
-	char *temp_data = t_args->temp_data;
-
 	/*Server args*/
 	int 			rcvid;
 	name_attach_t 	*attach;
@@ -170,8 +156,7 @@ void *runServer(void *args){
 	while (running) {
 		//receive message
 		rcvid = MsgReceive(attach->chid, &rbuf, sizeof(rbuf), NULL);
-
-		 if (0 == rcvid) {
+		if (0 == rcvid) {
 			//received a pulse
 			 switch(rbuf.pulse.code){
 			 case _PULSE_CODE_DISCONNECT:
@@ -195,16 +180,13 @@ void *runServer(void *args){
 			case GET_DATA:
 				// Get the mutex and return the temp data
 				pthread_mutex_lock(&temp_data_mutex);
-
-				logString(log_file, "Return data: %s", temp_data);
+				logString(log_file, "Return data: %f", temp_data);
 				/* Build the response */
 				resp_snsr_data_msg_t resp;
-				resp.data = atoi(temp_data) + (rand() % 6);
+				resp.data = temp_data;
 
 				/* Free the mutex so it does not get reply blocked*/
 				pthread_mutex_unlock(&temp_data_mutex);
-
-				logString(log_file, "Sending %s converted to %f", temp_data, resp.data);
 
 				/* Send data back */
 				MsgReply(rcvid, EOK, &resp, sizeof(resp));

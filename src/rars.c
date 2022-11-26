@@ -63,18 +63,19 @@ int main(void) {
 	// Temp mock data to read till the envSimulator is in place
 	FILE *write_file = fdopen(temp_sensor_fd[1], "w");
 	fprintf(write_file, "24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 31.0");
-
+	char s[10];
+	sprintf(s, "%d", temp_sensor_fd[1]);
 	/* Map the write end of pipe to stdin (could just not and it would keep same fd but this is fine for now)*/
-	char *es_args[] = {"/tmp/temperature_sensor", NULL};
-	int es_fd_map[] = {temp_sensor_fd[1]};
+	char *es_args[] = {"/tmp/temperature_sensor", s, NULL};
 
 	/*Create environment simulator proc*/
-	rars_pids[0] = spawn("/tmp/environment_simulator", 1, es_fd_map, NULL, es_args, NULL);
+	rars_pids[0] = spawn("/tmp/environment_simulator", 0, NULL, NULL, es_args, NULL);
 	if(rars_pids[0] == -1){
 		perror("Failed to spawn environment simulator");
 		exit(EXIT_FAILURE);
 	}
 
+	usleep(30);
 	/* Map the read end of pipe to stdin (could just not and it would keep same fd but this is fine for now)*/
 	char *ts_args[] = {"/tmp/temperature_sensor", NULL};
 	int ts_fd_map[] = {temp_sensor_fd[0]};

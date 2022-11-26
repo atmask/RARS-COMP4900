@@ -48,6 +48,13 @@ typedef union
 	struct _pulse pulse;
 } recv_pulse_t;
 
+/*
+ * Structs for passing data to write thread
+ */
+struct thread_args {
+	int* fds;
+};
+
 /* Track the running state in an atomic var modified by signal handler*/
 volatile sig_atomic_t running = 1;
 
@@ -63,12 +70,18 @@ void *writeData();
 void *runServer();
 void updateVarianceTypes();
 
-int main(void) {
+int main(int argc, char *argv[]) {
 	pthread_t write_thread, server_thread;
+	int pipe_fds[NUM_OUTPUTS];
+	struct thread_args writer_args;
+
+	/*Prepare data writer arguments*/
+	pipe_fds[TEMPERATURE] = atoi(argv[1]);
+	writer_args.fds = pipe_fds;
 
 	/*Spawn threads*/
 	pthread_create(&server_thread, NULL, runServer, NULL);
-	pthread_create(&write_thread, NULL, writeData, NULL);
+	pthread_create(&write_thread, NULL, writeData, &writer_args);
 
 
 	/*wait on the threads*/
@@ -79,11 +92,13 @@ int main(void) {
 void *writeData(void* args)
 {
 	FILE 			*log_file;
+	struct thread_args *t_args = (struct thread_args *) args;
+
 	log_file = fopen("/tmp/environment_simulator_writer.log", "w");
 	logString(log_file, "Starting environment simulator data writer");
 
 	float outputDataPoints[NUM_OUTPUTS] = {22.5f};
-	srandom(time(0));
+	srand(time(0));
 
 	while(running)
 	{
@@ -104,11 +119,11 @@ void *writeData(void* args)
 				}
 			}
 			outputDataPoints[i] += r;
-			printf("%f\n",  + outputDataPoints[i]);	//TODO: This will have to change if we add more pipes for more output types, right now we only need to worry about stdout
-			logString(log_file, "Printing %f to pipe %d", outputDataPoints[i], i);
+			dprintf(t_args->fds[i], "%f\n",  + outputDataPoints[i]);
+			logString(log_file, "Printing %f to pipe %d. Change of %f", outputDataPoints[i], i, r);
 		}
 		pthread_mutex_unlock(&var_types_mutex);
-		usleep(200);
+		sleep(1);
 	}
 	return EXIT_SUCCESS;
 }
@@ -164,28 +179,30 @@ void *runServer(void* args)
 			logString(log_file, "Received unknown message type: %d", rbuf.type);
 			MsgReply(rcvid, ENOTSUP, "Not supported", sizeof("Not supported"));
 		}
-		updateVarianceTypes(actuatorStates);
+		updateVarianceTypes(log_file, actuatorStates);
 	}
 	fclose(log_file);
 	name_detach(attach, 0);
 	return EXIT_SUCCESS;
 }
 
-void updateVarianceTypes(int actuatorStates[])
+void updateVarianceTypes(FILE* log_file, int actuatorStates[])
 {
 	 pthread_mutex_lock(&var_types_mutex);
-
 	 //Temperature:
 	 if(actuatorStates[HEATER] == ON && actuatorStates[AIR_CONDITIONER] == OFF)
 	 {
+		 logString(log_file, "Changing temperature variation to UP");
 		 varianceTypes[TEMPERATURE] = UP;
 	 }
 	 else if(actuatorStates[HEATER] == OFF && actuatorStates[AIR_CONDITIONER] == ON)
 	 {
+		 logString(log_file, "Changing temperature variation to DOWN");
 		 varianceTypes[TEMPERATURE] = DOWN;
 	 }
 	 else
 	 {
+		 logString(log_file, "Changing temperature variation to RANDOM");
 		 varianceTypes[TEMPERATURE] = RAND;
 	 }
 	 pthread_mutex_unlock(&var_types_mutex);
