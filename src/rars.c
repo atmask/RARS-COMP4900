@@ -116,28 +116,8 @@ int main(void) {
 	}
 
 
-
-	/* Exec() the Display Process
-	 *
-	 * The display Process will take over execution from here but pass it the rars_pids so it can kill everything
-	 * */
-//	char *args[NUM_PIDS+2];
-//	/* Convert all the pids to strings */
-//	for (int i=0; i<NUM_PIDS; i++){
-//		args[i+1] = malloc(10*sizeof(char));
-//		sprintf(args[i+1], "%d", rars_pids[i]);
-//		printf("Converted %d to %s\n", rars_pids[i], args[i+1]);
-//	}
-//	args[0] = "/tmp/display";
-//	args[NUM_PIDS+1] = NULL;
-//	if (execv("/tmp/display", args) == -1){
-//		perror("Could not start display. Shutting down RARS");
-//		exit(EXIT_FAILURE);
-//	}
-
-
 	/*****************************************************************************
-	 * Start the Display Logics
+	 * Start the Display Logic
 	 *****************************************************************************/
 
 	//Store the data for the print
@@ -181,7 +161,7 @@ int main(void) {
 				break;
 			 case TIMER_PULSE_CODE:
 				 printf("************************************************************\n\t\tSENSORS\n************************************************************\n");
-				 printf("Temperature Sensor: %.2f\n\n", temp);
+				 printf("Temperature Sensor: %.2f\tMax: %d\tMin: %d\n\n", temp, MAX_TEMP, MIN_TEMP);
 				 printf("Humidity Sensor: %.2f\n\n", humid);
 				 printf("************************************************************\n\t\tACTUATORS\n************************************************************\n");
 				 printf("A/C Unit:\t\t\t%s\n", ac_state);
