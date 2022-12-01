@@ -127,6 +127,9 @@ int main(void) {
 	char heater_state[8];
 	strcpy(ac_state, "OFF");
 	strcpy(heater_state, "OFF");
+	FILE *temp_metrics;
+	temp_metrics = fopen("/tmp/temp_metrics.csv", "w");
+	fprintf(temp_metrics, "temperature,max,min,a/c,heater\n");
 
 	//humidity
 	float humid;
@@ -134,6 +137,9 @@ int main(void) {
 	char dehumidifier[8];
 	strcpy(humidifier, "OFF");
 	strcpy(dehumidifier, "OFF");
+//	FILE *temp_metrics
+//	temp_metrics = fopen("/tmp/temp_metrics.csv", "w");
+//	fprintf(temp_metrics, "humidity,humidifier,de-humidifier\n");
 
 	// Create a timer to periodically print the display
 	struct sigevent sigevent;
@@ -177,6 +183,7 @@ int main(void) {
 			 case TEMP_DATA:
 				 //printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
 				 temp = msg.value.sival_int;
+				 fprintf(temp_metrics, "%.2f,%d,%d,%s,%s\n", temp, MAX_TEMP, MIN_TEMP, ac_state, heater_state);
 				 break;
 			 case TEMP_AC:
 				 if(msg.value.sival_int == ON){
@@ -186,7 +193,9 @@ int main(void) {
 					strcpy(ac_state, "OFF");
 					//printf("Pulse received:\n[DISPLAY] AC has turned off\n");
 				 }
-			 	break;
+				 fprintf(temp_metrics, "%.2f,%d,%d,%s,%s\n", temp, MAX_TEMP, MIN_TEMP, ac_state, heater_state);
+
+				 break;
 			 case TEMP_HEATER:
 				 //heater_state = sg.value.sival_int;
 				 if(msg.value.sival_int == ON){
@@ -196,6 +205,7 @@ int main(void) {
 					strcpy(heater_state, "OFF");
 					// printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
 				 }
+				 fprintf(temp_metrics, "%.2f,%d,%d,%s,%s\n", temp, MAX_TEMP, MIN_TEMP, ac_state, heater_state);
 			 	 break;
 			 case HUMID_DATA:
 			 	 //printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
@@ -229,6 +239,10 @@ int main(void) {
 			MsgReply(rcvid, EOK, "OK", sizeof("OK"));
 		}
 	}
+
+	/*Clean up*/
+	fclose(temp_metrics);
+	name_detach(attach, 0);
 
 	/* Kill the running procs generated for RARS and exit gracefully */
 	//ignore the bin name but convert all the pids to int and kill with with SIGTERM
