@@ -173,13 +173,13 @@ void *runServer(void* args)
 				 actuatorStates[AIR_CONDITIONER] = rbuf.pulse.value.sival_int;
 				 logString(log_file, "Changing air conditioner actuator to state %d", actuatorStates[AIR_CONDITIONER]);
 				 break;
-			 case HUMIDIFER_ACTUATOR_CHANGE:
+			 case HUMIDIFIER_ACTUATOR_CHANGE:
 				 actuatorStates[HUMIDIFIER] = rbuf.pulse.value.sival_int;
 				 logString(log_file, "Changing air conditioner actuator to state %d", actuatorStates[HUMIDIFIER]);
 				 break;
 			 case DEHUMIDIFIER_ACTUATOR_CHANGE:
-				 actuatorStates[DEHUMIDIFER] = rbuf.pulse.value.sival_int;
-				 logString(log_file, "Changing air conditioner actuator to state %d", actuatorStates[DEHUMIDIFER]);
+				 actuatorStates[DEHUMIDIFIER] = rbuf.pulse.value.sival_int;
+				 logString(log_file, "Changing air conditioner actuator to state %d", actuatorStates[DEHUMIDIFIER]);
 				 break;
 			 default:
 				 logString(log_file, "Unknown pulse received. Code: %d\n", rbuf.pulse.code);
@@ -218,7 +218,7 @@ void updateVarianceTypes(FILE* log_file, int actuatorStates[])
 	 }
 
 	 //Humidity:
-	 if(actuatorStates[HUMIDIFIER] == ON && actuatorStates[DUHUMIDIFIER] == OFF)
+	 if(actuatorStates[HUMIDIFIER] == ON && actuatorStates[DEHUMIDIFIER] == OFF)
 	 {
 		 logString(log_file, "Changing humidity variation to UP");
 		 varianceTypes[HUMIDITY] = UP;
