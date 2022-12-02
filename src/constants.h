@@ -19,7 +19,7 @@
 #define HEATER_ACTUATOR_SERVER "heater_actuator"
 #define AIR_CONDITIONER_ACTUATOR_SERVER "air_conditioner_actuator"
 #define ENVIRONMENT_SIMULATOR_SERVER "environment_simulator"
-
+#define HUMIDITY_SENSOR_SERVER "humidity_sensor"
 
 /**********************************************
  * MESSAGE TYPES
