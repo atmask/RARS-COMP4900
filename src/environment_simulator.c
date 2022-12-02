@@ -26,13 +26,16 @@
 /*ACTUATOR TYPES*/
 #define HEATER 0
 #define AIR_CONDITIONER 1
+#define HUMIDIFIER 2
+#define DEHUMIDIFIER 3
 
-#define NUM_ACTUATORS 2
+#define NUM_ACTUATORS 4
 
 /*DATA OUTPUT TYPES*/
 #define TEMPERATURE 0
+#define HUMIDITY 1
 
-#define NUM_OUTPUTS 1
+#define NUM_OUTPUTS 2
 
 /*ACTUATOR EFFECTS ON LINKED VARIABLE*/
 #define RAND 0 //Actuator off - variable linked to actuator will vary randomly
@@ -134,7 +137,7 @@ void *runServer(void* args)
 	int 			rcvid;
 	name_attach_t 	*attach;
 	recv_pulse_t 	rbuf;
-	int 			actuatorStates[NUM_ACTUATORS] = {OFF, OFF};
+	int 			actuatorStates[NUM_ACTUATORS] = {OFF, OFF, OFF, OFF};
 
 	//set up log file
 	log_file = fopen("/tmp/environment_simulator_server.log", "w");
@@ -170,6 +173,14 @@ void *runServer(void* args)
 				 actuatorStates[AIR_CONDITIONER] = rbuf.pulse.value.sival_int;
 				 logString(log_file, "Changing air conditioner actuator to state %d", actuatorStates[AIR_CONDITIONER]);
 				 break;
+			 case HUMIDIFER_ACTUATOR_CHANGE:
+				 actuatorStates[HUMIDIFIER] = rbuf.pulse.value.sival_int;
+				 logString(log_file, "Changing air conditioner actuator to state %d", actuatorStates[HUMIDIFIER]);
+				 break;
+			 case DEHUMIDIFIER_ACTUATOR_CHANGE:
+				 actuatorStates[DEHUMIDIFER] = rbuf.pulse.value.sival_int;
+				 logString(log_file, "Changing air conditioner actuator to state %d", actuatorStates[DEHUMIDIFER]);
+				 break;
 			 default:
 				 logString(log_file, "Unknown pulse received. Code: %d\n", rbuf.pulse.code);
 			 }
@@ -204,6 +215,23 @@ void updateVarianceTypes(FILE* log_file, int actuatorStates[])
 	 {
 		 logString(log_file, "Changing temperature variation to RANDOM");
 		 varianceTypes[TEMPERATURE] = RAND;
+	 }
+
+	 //Humidity:
+	 if(actuatorStates[HUMIDIFIER] == ON && actuatorStates[DUHUMIDIFIER] == OFF)
+	 {
+		 logString(log_file, "Changing humidity variation to UP");
+		 varianceTypes[HUMIDITY] = UP;
+	 }
+	 else if(actuatorStates[HUMIDIFIER] == OFF && actuatorStates[DEHUMIDIFIER] == ON)
+	 {
+		 logString(log_file, "Changing humidity variation to DOWN");
+		 varianceTypes[HUMIDITY] = DOWN;
+	 }
+	 else
+	 {
+		 logString(log_file, "Changing humidity variation to RANDOM");
+		 varianceTypes[HUMIDITY] = RAND;
 	 }
 	 pthread_mutex_unlock(&var_types_mutex);
 }
