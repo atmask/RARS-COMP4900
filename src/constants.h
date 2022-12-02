@@ -90,5 +90,8 @@ typedef struct resp_actu_state_msg {
 #define MAX_TEMP 25
 #define MIN_TEMP 20
 
+#define MAX_HUMID 90
+#define MIN_HUMID 50
+
 
 #endif /* SRC_CONSTANTS_H_ */

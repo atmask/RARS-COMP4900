@@ -79,11 +79,11 @@ typedef union
 int main(void) {
 
 	FILE *log_file1;
-	log_file1 = fopen("/tmp/sensor_reader.log", "w");
+	log_file1 = fopen("/tmp/temp_sensor_reader.log", "w");
 	logString(log_file1, "Starting temp sensor");
 
 	FILE *log_file2;
-	log_file2 = fopen("/tmp/sensor_server.log", "w");
+	log_file2 = fopen("/tmp/temp_sensor_server.log", "w");
 	logString(log_file2, "Starting temp sensor");
 
 	pthread_t read_thread, server_thread;
