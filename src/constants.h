@@ -18,6 +18,8 @@
 #define TEMPERATURE_SENSOR_SERVER "temperature_sensor"
 #define HEATER_ACTUATOR_SERVER "heater_actuator"
 #define AIR_CONDITIONER_ACTUATOR_SERVER "air_conditioner_actuator"
+#define HUMIDIFIER_ACTUATOR_SERVER "humidifier_actuator"
+#define DEHUMIDIFIER_ACTUATOR_SERVER "dehumidifier_actuator"
 #define ENVIRONMENT_SIMULATOR_SERVER "environment_simulator"
 #define HUMIDITY_SENSOR_SERVER "humidity_sensor"
 
@@ -70,8 +72,10 @@ typedef struct resp_actu_state_msg {
 /*********************************************
  *    PULSE CODES FOR ENVIRONMENT SIMULATOR
  *********************************************/
-#define AIR_CONDITIONER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+6)
-#define HEATER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+7)
+#define AIR_CONDITIONER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+9)
+#define HEATER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+10)
+#define HUMIDIFIER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+11)
+#define DEHUMIDIFIER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+12)
 
 /*********************************
  *  ACTUATOR CONSTANTS
