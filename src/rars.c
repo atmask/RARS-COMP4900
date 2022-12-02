@@ -8,7 +8,7 @@
 
 #include "constants.h"
 
-#define NUM_PIDS 6
+#define NUM_PIDS 9
 
 /********************************
  * Signals
@@ -110,8 +110,9 @@ int main(void) {
 
 
 	/*****************************************************************************
-	 * Create the temp actuators
+	 * Create the actuators
 	 *****************************************************************************/
+	//temp
 	char *ac_args[] = {"/tmp/air_conditioner_actuator", NULL};
 	rars_pids[3] = spawn("/tmp/air_conditioner_actuator", 0, NULL, NULL, ac_args, NULL);
 	if(rars_pids[3] == -1){
@@ -125,16 +126,36 @@ int main(void) {
 		perror("Failed to spawn heater actuator");
 		exit(EXIT_FAILURE);
 	}
+	//humid
+	char *dehumidifier_args[] = {"/tmp/dehumidifier_actuator", NULL};
+		rars_pids[5] = spawn("/tmp/dehumidifier_actuator", 0, NULL, NULL, dehumidifier_args, NULL);
+		if(rars_pids[5] == -1){
+			perror("Failed to spawn dehumidifier actuator");
+			exit(EXIT_FAILURE);
+		}
+
+		char *humidifier_args[] = {"/tmp/humidifier_actuator", NULL};
+		rars_pids[6] = spawn("/tmp/humidifier_actuator", 0, NULL, NULL, humidifier_args, NULL);
+		if(rars_pids[6] == -1){
+			perror("Failed to spawn humidifier actuator");
+			exit(EXIT_FAILURE);
+		}
 
 	/*****************************************************************************
 	 * Create the temp manager clients for the sensors
 	 *****************************************************************************/
 	char *tm_args[] = {"/tmp/temperature_manager", TEMPERATURE_SENSOR_SERVER, NULL};
-	rars_pids[5] = spawn("/tmp/temperature_manager", 0, NULL, NULL, tm_args, NULL);
-	if(rars_pids[5] == -1){
+	rars_pids[7] = spawn("/tmp/temperature_manager", 0, NULL, NULL, tm_args, NULL);
+	if(rars_pids[7] == -1){
 		perror("Failed to spawn temp manager");
 		exit(EXIT_FAILURE);
 	}
+	char *hm_args[] = {"/tmp/humidity_manager", HUMIDITY_SENSOR_SERVER, NULL};
+		rars_pids[8] = spawn("/tmp/humidity_manager", 0, NULL, NULL, hm_args, NULL);
+		if(rars_pids[8] == -1){
+			perror("Failed to spawn humidity manager");
+			exit(EXIT_FAILURE);
+		}
 
 
 	/*****************************************************************************
@@ -158,9 +179,9 @@ int main(void) {
 	char dehumidifier[8];
 	strcpy(humidifier, "OFF");
 	strcpy(dehumidifier, "OFF");
-//	FILE *temp_metrics
-//	temp_metrics = fopen("/tmp/temp_metrics.csv", "w");
-//	fprintf(temp_metrics, "humidity,humidifier,de-humidifier\n");
+	FILE *humid_metrics;
+	humid_metrics = fopen("/tmp/humid_metrics.csv", "w");
+	fprintf(humid_metrics, "humidity,humidifier,de-humidifier\n");
 
 	// Create a timer to periodically print the display
 	struct sigevent sigevent;
@@ -187,6 +208,7 @@ int main(void) {
 				}
 				break;
 			 case TIMER_PULSE_CODE:
+				 printf("\n\n\n\n\n\n\n\n\n");
 				 printf("************************************************************\n\t\tSENSORS\n************************************************************\n");
 				 printf("Temperature Sensor: %.2f\tMax: %d\tMin: %d\n\n", temp, MAX_TEMP, MIN_TEMP);
 				 printf("Humidity Sensor: %.2f\n\n", humid);
@@ -195,7 +217,6 @@ int main(void) {
 				 printf("Heating Unit:\t\t\t%s\n\n", heater_state);
 				 printf("Dehumidifier Unit:\t\t%s\n", dehumidifier);
  				 printf("Humidifier Unit:\t\t%s\n\n", humidifier);
-				 printf("\n\n\n\n\n\n\n\n\n");
 
 				 break;
 			 case KILL_ALL:
