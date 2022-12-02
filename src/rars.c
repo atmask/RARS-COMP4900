@@ -211,7 +211,7 @@ int main(void) {
 				 printf("\n\n\n\n\n\n\n\n\n");
 				 printf("************************************************************\n\t\tSENSORS\n************************************************************\n");
 				 printf("Temperature Sensor: %.2f\tMax: %d\tMin: %d\n\n", temp, MAX_TEMP, MIN_TEMP);
-				 printf("Humidity Sensor: %.2f\tMax: %d\tMin: %d\n\n", humid, MAX_HUMID, MIN_HUMID);
+				 printf("Humidity Sensor: %.2f\t\tMax: %d\tMin: %d\n\n", humid, MAX_HUMID, MIN_HUMID);
 				 printf("************************************************************\n\t\tACTUATORS\n************************************************************\n");
 				 printf("A/C Unit:\t\t\t%s\n", ac_state);
 				 printf("Heating Unit:\t\t\t%s\n\n", heater_state);
