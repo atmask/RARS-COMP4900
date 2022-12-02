@@ -65,17 +65,11 @@ int main(void) {
 	 * Create the environment simulator with the write ends of the pipes
 	 *****************************************************************************/
 
-	// Temp mock data to read till the envSimulator is in place
-	FILE *write_file = fdopen(temp_sensor_fd[1], "w");
-	fprintf(write_file, "24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 30.0 24.3 25 24 28 26.3 31.0");
 	char temp_fd_str[10];
 	char humidity_fd_str[10];
 	sprintf(temp_fd_str, "%d", temp_sensor_fd[1]);
 	sprintf(humidity_fd_str, "%d", humidity_sensor_fd[1]);
-	/* Map the write end of pipe to stdin (could just not and it would keep same fd but this is fine for now)*/
 	char *es_args[] = {"/tmp/environment_simulator", temp_fd_str, humidity_fd_str, NULL};
-
-	/*Create environment simulator proc*/
 	rars_pids[0] = spawn("/tmp/environment_simulator", 0, NULL, NULL, es_args, NULL);
 	if(rars_pids[0] == -1){
 		perror("Failed to spawn environment simulator");
@@ -87,21 +81,20 @@ int main(void) {
 	/*****************************************************************************
 	 * Create the sensor drivers with the read ends of the pipes
 	 *****************************************************************************/
-	/* Map the read end of pipe to stdin (could just not and it would keep same fd but this is fine for now)*/
+	/*Create temp sensor proc*/
 	char *ts_args[] = {"/tmp/temperature_sensor", NULL};
 	int ts_fd_map[] = {temp_sensor_fd[0]};
 
-	/*Create temp sensor proc*/
 	rars_pids[1] = spawn("/tmp/temperature_sensor", 1, ts_fd_map, NULL, ts_args, NULL);
 	if(rars_pids[1] == -1){
 		perror("Failed to spawn temp sensor");
 		exit(EXIT_FAILURE);
 	}
 
+	/*Create humidity sensor proc*/
 	char *hs_args[] = {"/tmp/humidity_sensor", NULL};
 	int hs_fd_map[] = {humidity_sensor_fd[0]};
 
-	/*Create temp sensor proc*/
 	rars_pids[2] = spawn("/tmp/humidity_sensor", 1, hs_fd_map, NULL, hs_args, NULL);
 	if(rars_pids[2] == -1){
 		perror("Failed to spawn humidity sensor");

@@ -111,11 +111,9 @@ void *readData(void *args){
 	/*Pull args from the thread_args*/
 	struct thread_args *t_args = (struct thread_args *) args;
 	FILE *log_file = t_args->log_file;
-
 	while(running){
 		/* Lock the mutex */
 		pthread_mutex_lock(&humid_data_mutex);
-
 		/* Scanf to get the humid
 		 * N.B. Scanf reads up the whitespace
 		 * */

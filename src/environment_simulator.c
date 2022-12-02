@@ -80,6 +80,7 @@ int main(int argc, char *argv[]) {
 
 	/*Prepare data writer arguments*/
 	pipe_fds[TEMPERATURE] = atoi(argv[1]);
+	pipe_fds[HUMIDITY] = atoi(argv[2]);
 	writer_args.fds = pipe_fds;
 
 	/*Spawn threads*/
@@ -100,7 +101,8 @@ void *writeData(void* args)
 	log_file = fopen("/tmp/environment_simulator_writer.log", "w");
 	logString(log_file, "Starting environment simulator data writer");
 
-	float outputDataPoints[NUM_OUTPUTS] = {22.5f};
+	float outputDataPoints[NUM_OUTPUTS] = {22.5f, 75.0f};
+	float varianceConstants[NUM_OUTPUTS] = {1.0f, 5.0f}; // Make some data types change faster than others
 	srand(time(0));
 
 	while(running)
@@ -121,8 +123,9 @@ void *writeData(void* args)
 					r *= -1.0f;
 				}
 			}
+			r *= varianceConstants[i];
 			outputDataPoints[i] += r;
-			dprintf(t_args->fds[i], "%f\n",  + outputDataPoints[i]);
+			dprintf(t_args->fds[i], "%f\n", outputDataPoints[i]);
 			logString(log_file, "Printing %f to pipe %d. Change of %f", outputDataPoints[i], i, r);
 		}
 		pthread_mutex_unlock(&var_types_mutex);
