@@ -23,6 +23,8 @@
 #define ENVIRONMENT_SIMULATOR_SERVER "environment_simulator"
 #define HUMIDITY_SENSOR_SERVER "humidity_sensor"
 #define PH_SENSOR_SERVER "ph_sensor"
+#define FL_INJECTOR_ACTUATOR_SERVER "fl_injector_actuator"
+#define AS_INJECTOR_ACTUATOR_SERVER "as_injector_actuator"
 
 /**********************************************
  * MESSAGE TYPES
