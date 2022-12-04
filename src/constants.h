@@ -22,6 +22,7 @@
 #define DEHUMIDIFIER_ACTUATOR_SERVER "dehumidifier_actuator"
 #define ENVIRONMENT_SIMULATOR_SERVER "environment_simulator"
 #define HUMIDITY_SENSOR_SERVER "humidity_sensor"
+#define PH_SENSOR_SERVER "ph_sensor"
 
 /**********************************************
  * MESSAGE TYPES
@@ -68,14 +69,20 @@ typedef struct resp_actu_state_msg {
 #define HUMID_DATA (_PULSE_CODE_MINAVAIL+6)
 #define HUMID_HUMIDIFIER (_PULSE_CODE_MINAVAIL+7)
 #define HUMID_DEHUMIDIFIER (_PULSE_CODE_MINAVAIL+8)
+//PH vars
+#define PH_DATA (_PULSE_CODE_MINAVAIL+9)
+#define PH_FL_INJECTOR (_PULSE_CODE_MINAVAIL+10)
+#define PH_AS_INJECTOR (_PULSE_CODE_MINAVAIL+11)
 
 /*********************************************
  *    PULSE CODES FOR ENVIRONMENT SIMULATOR
  *********************************************/
-#define AIR_CONDITIONER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+9)
-#define HEATER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+10)
-#define HUMIDIFIER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+11)
-#define DEHUMIDIFIER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+12)
+#define AIR_CONDITIONER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+12)
+#define HEATER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+13)
+#define HUMIDIFIER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+14)
+#define DEHUMIDIFIER_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+15)
+#define FL_INJECTOR_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+16)
+#define AS_INJECTOR_ACTUATOR_CHANGE (_PULSE_CODE_MINAVAIL+17)
 
 /*********************************
  *  ACTUATOR CONSTANTS
@@ -93,5 +100,7 @@ typedef struct resp_actu_state_msg {
 #define MAX_HUMID 90
 #define MIN_HUMID 50
 
+#define MAX_PH 7.5
+#define MIN_PH 6.5
 
 #endif /* SRC_CONSTANTS_H_ */
