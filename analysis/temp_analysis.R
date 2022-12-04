@@ -3,7 +3,7 @@ library(tidyverse)
 # Variables
 max_temp <- 25
 min_temp <- 20
-data <- read.csv("./analysis/data/temp_metrics.csv")
+temp_data <- read.csv("./analysis/data/temp_metrics.csv")
 
 # Function to assign factor
 assignState <- Vectorize(function(heater, cooling) {
@@ -19,12 +19,13 @@ assignState <- Vectorize(function(heater, cooling) {
 })
 
 # Merge heater and a.c into actuator variable
-data$actuator <- assignState(data$heater, data$a.c)
+temp_data$actuator <- assignState(temp_data$heater, temp_data$a.c)
 
 # Add a iteration variable as index
-data$iteration <- 1:nrow(data)
+temp_data$iteration <- 1:nrow(temp_data)
 
-data %>% ggplot(aes(iteration, temperature)) + 
+# Plot a subset of the temp_data
+temp_data[1:200, ] %>% ggplot(aes(iteration, temperature)) + 
   geom_line() + 
   geom_abline(aes(intercept = max_temp, slope = 0)) +
   geom_abline(aes(intercept = min_temp, slope = 0)) +
@@ -46,9 +47,9 @@ ggsave(
 )
 
 # Calculate percentage of iterations spent in the accepted temperature interval
-good_temperature <- data$temperature >= 20 & data$temperature <= 25
+good_temperature <- temp_data$temperature >= min_temp & temp_data$temperature <= max_temp
 
-percentage <- mean(good_temperature) * 100
+temperature_percentage <- mean(good_temperature) * 100
 
 
 
