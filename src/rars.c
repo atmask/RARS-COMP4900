@@ -8,7 +8,7 @@
 
 #include "constants.h"
 
-#define NUM_PIDS 9
+#define NUM_PIDS 13
 
 /********************************
  * Signals
@@ -50,6 +50,7 @@ int main(void) {
 	pid_t rars_pids[NUM_PIDS];
 	int temp_sensor_fd[2];// 0=RD 1=WR
 	int humidity_sensor_fd[2];
+	int ph_sensor_fd[2];
 
 	/* Create the pipes representing the environment data*/
 	if(pipe(temp_sensor_fd) == -1){
@@ -60,6 +61,10 @@ int main(void) {
 		perror("pipe(humidity_sensor_fd) failed.");
 		exit(EXIT_FAILURE);
 	}
+	if(pipe(ph_sensor_fd) == -1){
+		perror("pipe(ph_sensor_fd) failed.");
+		exit(EXIT_FAILURE);
+	}
 
 	/*****************************************************************************
 	 * Create the environment simulator with the write ends of the pipes
@@ -67,9 +72,11 @@ int main(void) {
 
 	char temp_fd_str[10];
 	char humidity_fd_str[10];
+	char ph_fd_str[10];
 	sprintf(temp_fd_str, "%d", temp_sensor_fd[1]);
 	sprintf(humidity_fd_str, "%d", humidity_sensor_fd[1]);
-	char *es_args[] = {"/tmp/environment_simulator", temp_fd_str, humidity_fd_str, NULL};
+	sprintf(ph_fd_str, "%d", ph_sensor_fd[1]);
+	char *es_args[] = {"/tmp/environment_simulator", temp_fd_str, humidity_fd_str, ph_fd_str, NULL};
 	rars_pids[0] = spawn("/tmp/environment_simulator", 0, NULL, NULL, es_args, NULL);
 	if(rars_pids[0] == -1){
 		perror("Failed to spawn environment simulator");
@@ -101,54 +108,88 @@ int main(void) {
 		exit(EXIT_FAILURE);
 	}
 
+	/*Create pH sensor proc*/
+	char *ps_args[] = {"/tmp/ph_sensor", NULL};
+	int ph_fd_map[] = {ph_sensor_fd[0]};
+
+	rars_pids[3] = spawn("/tmp/ph_sensor", 1, ph_fd_map, NULL, ps_args, NULL);
+	if(rars_pids[3] == -1){
+		perror("Failed to spawn pH sensor");
+		exit(EXIT_FAILURE);
+	}
+
 
 	/*****************************************************************************
 	 * Create the actuators
 	 *****************************************************************************/
 	//temp
 	char *ac_args[] = {"/tmp/air_conditioner_actuator", NULL};
-	rars_pids[3] = spawn("/tmp/air_conditioner_actuator", 0, NULL, NULL, ac_args, NULL);
-	if(rars_pids[3] == -1){
+	rars_pids[4] = spawn("/tmp/air_conditioner_actuator", 0, NULL, NULL, ac_args, NULL);
+	if(rars_pids[4] == -1){
 		perror("Failed to spawn A/C actuator");
 		exit(EXIT_FAILURE);
 	}
-
 	char *heater_args[] = {"/tmp/heater_actuator", NULL};
-	rars_pids[4] = spawn("/tmp/heater_actuator", 0, NULL, NULL, heater_args, NULL);
-	if(rars_pids[4] == -1){
+	rars_pids[5] = spawn("/tmp/heater_actuator", 0, NULL, NULL, heater_args, NULL);
+	if(rars_pids[5] == -1){
 		perror("Failed to spawn heater actuator");
 		exit(EXIT_FAILURE);
 	}
+
 	//humid
 	char *dehumidifier_args[] = {"/tmp/dehumidifier_actuator", NULL};
-		rars_pids[5] = spawn("/tmp/dehumidifier_actuator", 0, NULL, NULL, dehumidifier_args, NULL);
-		if(rars_pids[5] == -1){
-			perror("Failed to spawn dehumidifier actuator");
-			exit(EXIT_FAILURE);
-		}
+	rars_pids[6] = spawn("/tmp/dehumidifier_actuator", 0, NULL, NULL, dehumidifier_args, NULL);
+	if(rars_pids[6] == -1){
+		perror("Failed to spawn dehumidifier actuator");
+		exit(EXIT_FAILURE);
+	}
+	char *humidifier_args[] = {"/tmp/humidifier_actuator", NULL};
+	rars_pids[7] = spawn("/tmp/humidifier_actuator", 0, NULL, NULL, humidifier_args, NULL);
+	if(rars_pids[7] == -1){
+		perror("Failed to spawn humidifier actuator");
+		exit(EXIT_FAILURE);
+	}
 
-		char *humidifier_args[] = {"/tmp/humidifier_actuator", NULL};
-		rars_pids[6] = spawn("/tmp/humidifier_actuator", 0, NULL, NULL, humidifier_args, NULL);
-		if(rars_pids[6] == -1){
-			perror("Failed to spawn humidifier actuator");
-			exit(EXIT_FAILURE);
-		}
+	//pH
+	char *fl_injector_args[] = {"/tmp/fl_injector_actuator", NULL};
+	rars_pids[8] = spawn("/tmp/fl_injector_actuator", 0, NULL, NULL, fl_injector_args, NULL);
+	if(rars_pids[8] == -1){
+		perror("Failed to spawn flowable lime injector actuator");
+		exit(EXIT_FAILURE);
+	}
+	char *as_injector_args[] = {"/tmp/as_injector_actuator", NULL};
+	rars_pids[9] = spawn("/tmp/humidifier_actuator", 0, NULL, NULL, as_injector_args, NULL);
+	if(rars_pids[9] == -1){
+		perror("Failed to spawn aluminum sulfate injector actuator");
+		exit(EXIT_FAILURE);
+	}
 
 	/*****************************************************************************
 	 * Create the temp manager clients for the sensors
 	 *****************************************************************************/
+	//Temperature
 	char *tm_args[] = {"/tmp/temperature_manager", TEMPERATURE_SENSOR_SERVER, NULL};
-	rars_pids[7] = spawn("/tmp/temperature_manager", 0, NULL, NULL, tm_args, NULL);
-	if(rars_pids[7] == -1){
+	rars_pids[10] = spawn("/tmp/temperature_manager", 0, NULL, NULL, tm_args, NULL);
+	if(rars_pids[10] == -1){
 		perror("Failed to spawn temp manager");
 		exit(EXIT_FAILURE);
 	}
+
+	//Humidity
 	char *hm_args[] = {"/tmp/humidity_manager", HUMIDITY_SENSOR_SERVER, NULL};
-		rars_pids[8] = spawn("/tmp/humidity_manager", 0, NULL, NULL, hm_args, NULL);
-		if(rars_pids[8] == -1){
-			perror("Failed to spawn humidity manager");
-			exit(EXIT_FAILURE);
-		}
+	rars_pids[11] = spawn("/tmp/humidity_manager", 0, NULL, NULL, hm_args, NULL);
+	if(rars_pids[11] == -1){
+		perror("Failed to spawn humidity manager");
+		exit(EXIT_FAILURE);
+	}
+
+	//pH
+	char *ph_args[] = {"/tmp/ph_manager", PH_SENSOR_SERVER, NULL};
+	rars_pids[11] = spawn("/tmp/ph_manager", 0, NULL, NULL, ph_args, NULL);
+	if(rars_pids[11] == -1){
+		perror("Failed to spawn ph manager");
+		exit(EXIT_FAILURE);
+	}
 
 
 	/*****************************************************************************

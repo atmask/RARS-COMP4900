@@ -28,14 +28,17 @@
 #define AIR_CONDITIONER 1
 #define HUMIDIFIER 2
 #define DEHUMIDIFIER 3
+#define FL_INJECTOR 4
+#define AS_INJECTOR 5
 
-#define NUM_ACTUATORS 4
+#define NUM_ACTUATORS 6
 
 /*DATA OUTPUT TYPES*/
 #define TEMPERATURE 0
 #define HUMIDITY 1
+#define PH 2
 
-#define NUM_OUTPUTS 2
+#define NUM_OUTPUTS 3
 
 /*ACTUATOR EFFECTS ON LINKED VARIABLE*/
 #define RAND 0 //Actuator off - variable linked to actuator will vary randomly
@@ -81,6 +84,7 @@ int main(int argc, char *argv[]) {
 	/*Prepare data writer arguments*/
 	pipe_fds[TEMPERATURE] = atoi(argv[1]);
 	pipe_fds[HUMIDITY] = atoi(argv[2]);
+	pipe_fds[PH] = atoi(argv[3]);
 	writer_args.fds = pipe_fds;
 
 	/*Spawn threads*/
@@ -101,8 +105,8 @@ void *writeData(void* args)
 	log_file = fopen("/tmp/environment_simulator_writer.log", "w");
 	logString(log_file, "Starting environment simulator data writer");
 
-	float outputDataPoints[NUM_OUTPUTS] = {22.5f, 75.0f};
-	float varianceConstants[NUM_OUTPUTS] = {1.0f, 5.0f}; // Make some data types change faster than others
+	float outputDataPoints[NUM_OUTPUTS] = {22.5f, 75.0f, 7.0f};
+	float varianceConstants[NUM_OUTPUTS] = {1.0f, 5.0f, 0.2f}; // Some data types change faster than others
 	srand(time(0));
 
 	while(running)
@@ -184,6 +188,14 @@ void *runServer(void* args)
 				 actuatorStates[DEHUMIDIFIER] = rbuf.pulse.value.sival_int;
 				 logString(log_file, "Changing air conditioner actuator to state %d", actuatorStates[DEHUMIDIFIER]);
 				 break;
+			 case FL_INJECTOR_ACTUATOR_CHANGE:
+				 actuatorStates[FL_INJECTOR] = rbuf.pulse.value.sival_int;
+				 logString(log_file, "Changing air conditioner actuator to state %d", actuatorStates[FL_INJECTOR]);
+				 break;
+			 case AS_INJECTOR_ACTUATOR_CHANGE:
+				 actuatorStates[AS_INJECTOR] = rbuf.pulse.value.sival_int;
+				 logString(log_file, "Changing air conditioner actuator to state %d", actuatorStates[AS_INJECTOR]);
+				 break;
 			 default:
 				 logString(log_file, "Unknown pulse received. Code: %d\n", rbuf.pulse.code);
 			 }
@@ -235,6 +247,23 @@ void updateVarianceTypes(FILE* log_file, int actuatorStates[])
 	 {
 		 logString(log_file, "Changing humidity variation to RANDOM");
 		 varianceTypes[HUMIDITY] = RAND;
+	 }
+
+	 //pH:
+	 if(actuatorStates[FL_INJECTOR] == ON && actuatorStates[AS_INJECTOR] == OFF)
+	 {
+		 logString(log_file, "Changing pH variation to UP");
+		 varianceTypes[PH] = UP;
+	 }
+	 else if(actuatorStates[FL_INJECTOR] == OFF && actuatorStates[AS_INJECTOR] == ON)
+	 {
+		 logString(log_file, "Changing pH variation to DOWN");
+		 varianceTypes[PH] = DOWN;
+	 }
+	 else
+	 {
+		 logString(log_file, "Changing pH variation to RANDOM");
+		 varianceTypes[PH] = RAND;
 	 }
 	 pthread_mutex_unlock(&var_types_mutex);
 }
