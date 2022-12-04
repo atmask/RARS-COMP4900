@@ -45,4 +45,10 @@ ggsave(
   path = "./analysis/graphs"
 )
 
+# Calculate percentage of iterations spent in the accepted temperature interval
+good_temperature <- data$temperature >= 20 & data$temperature <= 25
+
+percentage <- mean(good_temperature) * 100
+
+
 
