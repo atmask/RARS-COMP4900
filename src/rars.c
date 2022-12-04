@@ -262,7 +262,7 @@ int main(void) {
 				 printf("Heating Unit:\t\t\t%s\n\n", heater_state);
 				 printf("Dehumidifier Unit:\t\t%s\n", dehumidifier);
  				 printf("Humidifier Unit:\t\t%s\n\n", humidifier);
- 				 printf("Flowable Lime Injector Unit:\t%s\n\n", fl_injector);
+ 				 printf("Flowable Lime Injector Unit:\t%s\n", fl_injector);
  				 printf("Aluminum Sulfate Injector Unit:\t%s\n\n", as_injector);
 
 				 break;

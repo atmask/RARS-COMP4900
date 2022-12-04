@@ -102,7 +102,7 @@ typedef struct resp_actu_state_msg {
 #define MAX_HUMID 90
 #define MIN_HUMID 50
 
-#define MAX_PH 7.5
-#define MIN_PH 6.5
+#define MAX_PH 8
+#define MIN_PH 6
 
 #endif /* SRC_CONSTANTS_H_ */
