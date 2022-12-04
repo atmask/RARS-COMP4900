@@ -39,7 +39,7 @@ data %>% ggplot(aes(iteration, temperature)) +
 
 # Save plot
 ggsave(
-  "temp_graph",
+  "temp_graph.jpeg",
   plot = last_plot(),
   device = "jpeg",
   path = "./analysis/graphs"
