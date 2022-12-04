@@ -144,7 +144,7 @@ void *runServer(void* args)
 	int 			rcvid;
 	name_attach_t 	*attach;
 	recv_pulse_t 	rbuf;
-	int 			actuatorStates[NUM_ACTUATORS] = {OFF, OFF, OFF, OFF};
+	int 			actuatorStates[NUM_ACTUATORS] = {OFF, OFF, OFF, OFF, OFF, OFF};
 
 	//set up log file
 	log_file = fopen("/tmp/environment_simulator_server.log", "w");
