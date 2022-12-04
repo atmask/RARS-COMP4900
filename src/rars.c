@@ -215,7 +215,17 @@ int main(void) {
 	strcpy(dehumidifier, "OFF");
 	FILE *humid_metrics;
 	humid_metrics = fopen("/tmp/humid_metrics.csv", "w");
-	fprintf(humid_metrics, "humidity,humidifier,de-humidifier\n");
+	fprintf(humid_metrics, "humidity,max,min,humidifier,de-humidifier\n");
+
+	//humidity
+	float ph;
+	char fl_injector[8];
+	char as_injector[8];
+	strcpy(fl_injector, "OFF");
+	strcpy(as_injector, "OFF");
+	FILE *ph_metrics;
+	ph_metrics = fopen("/tmp/ph_metrics.csv", "w");
+	fprintf(ph_metrics, "ph,max,min,fl-injector,as-injector\n");
 
 	// Create a timer to periodically print the display
 	struct sigevent sigevent;
@@ -246,11 +256,14 @@ int main(void) {
 				 printf("************************************************************\n\t\tSENSORS\n************************************************************\n");
 				 printf("Temperature Sensor: %.2f\tMax: %d\tMin: %d\n\n", temp, MAX_TEMP, MIN_TEMP);
 				 printf("Humidity Sensor: %.2f\t\tMax: %d\tMin: %d\n\n", humid, MAX_HUMID, MIN_HUMID);
+				 printf("pH Sensor: %.2f\t\t\tMax: %d\tMin: %d\n\n", ph, MAX_PH, MIN_PH);
 				 printf("************************************************************\n\t\tACTUATORS\n************************************************************\n");
 				 printf("A/C Unit:\t\t\t%s\n", ac_state);
 				 printf("Heating Unit:\t\t\t%s\n\n", heater_state);
 				 printf("Dehumidifier Unit:\t\t%s\n", dehumidifier);
  				 printf("Humidifier Unit:\t\t%s\n\n", humidifier);
+ 				 printf("Flowable Lime Injector Unit:\t%s\n\n", fl_injector);
+ 				 printf("Aluminum Sulfate Injector Unit:\t%s\n\n", as_injector);
 
 				 break;
 			 case KILL_ALL:
@@ -286,6 +299,7 @@ int main(void) {
 			 case HUMID_DATA:
 			 	 //printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
 			 	 humid = msg.value.sival_int;
+				 fprintf(humid_metrics, "%.2f,%d,%d,%s,%s\n", humid, MAX_HUMID, MIN_HUMID, humidifier, dehumidifier);
 			 	 break;
 			 case HUMID_DEHUMIDIFIER:
 			 	 if(msg.value.sival_int == ON){
@@ -295,6 +309,7 @@ int main(void) {
 			 		strcpy(dehumidifier, "OFF");
 			 		//printf("Pulse received:\n[DISPLAY] AC has turned off\n");
 			 	 }
+			 	fprintf(humid_metrics, "%.2f,%d,%d,%s,%s\n", humid, MAX_HUMID, MIN_HUMID, humidifier, dehumidifier);
 			  	break;
 			  case HUMID_HUMIDIFIER:
 			 	 //heater_state = sg.value.sival_int;
@@ -305,7 +320,34 @@ int main(void) {
 			 		strcpy(humidifier, "OFF");
 			 		// printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
 			 	 }
+			 	 fprintf(humid_metrics, "%.2f,%d,%d,%s,%s\n", humid, MAX_HUMID, MIN_HUMID, humidifier, dehumidifier);
 			  	 break;
+			 case PH_DATA:
+				 //printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
+				 ph = msg.value.sival_int;
+				 fprintf(ph_metrics, "%.2f,%d,%d,%s,%s\n", ph, MAX_PH, MIN_PH, fl_injector, as_injector);
+				 break;
+			 case PH_AS_INJECTOR:
+				 if(msg.value.sival_int == ON){
+					strcpy(as_injector, "ON");
+					//printf("Pulse received:\n[DISPLAY] AC has turned on\n");
+				 }else if(msg.value.sival_int == OFF){
+					strcpy(as_injector, "OFF");
+					//printf("Pulse received:\n[DISPLAY] AC has turned off\n");
+				 }
+				 fprintf(ph_metrics, "%.2f,%d,%d,%s,%s\n", ph, MAX_PH, MIN_PH, fl_injector, as_injector);
+				break;
+			  case PH_FL_INJECTOR:
+				 //heater_state = sg.value.sival_int;
+				 if(msg.value.sival_int == ON){
+					strcpy(fl_injector, "ON");
+					//printf("Pulse received:\n[DISPLAY] Heater has turned on\n");
+				 }else if(msg.value.sival_int == OFF){
+					strcpy(fl_injector, "OFF");
+					// printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
+				 }
+				 fprintf(ph_metrics, "%.2f,%d,%d,%s,%s\n", ph, MAX_PH, MIN_PH, fl_injector, as_injector);
+				 break;
 			 default:
 				 printf("Unexpected pulse code: %d", msg.code);
 				 break;
@@ -318,6 +360,8 @@ int main(void) {
 
 	/*Clean up*/
 	fclose(temp_metrics);
+	fclose(humid_metrics);
+	fclose(ph_metrics);
 	name_detach(attach, 0);
 
 	/* Kill the running procs generated for RARS and exit gracefully */
