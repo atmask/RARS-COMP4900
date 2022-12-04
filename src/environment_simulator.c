@@ -182,19 +182,19 @@ void *runServer(void* args)
 				 break;
 			 case HUMIDIFIER_ACTUATOR_CHANGE:
 				 actuatorStates[HUMIDIFIER] = rbuf.pulse.value.sival_int;
-				 logString(log_file, "Changing air conditioner actuator to state %d", actuatorStates[HUMIDIFIER]);
+				 logString(log_file, "Changing humidifier actuator to state %d", actuatorStates[HUMIDIFIER]);
 				 break;
 			 case DEHUMIDIFIER_ACTUATOR_CHANGE:
 				 actuatorStates[DEHUMIDIFIER] = rbuf.pulse.value.sival_int;
-				 logString(log_file, "Changing air conditioner actuator to state %d", actuatorStates[DEHUMIDIFIER]);
+				 logString(log_file, "Changing dehumidifier actuator to state %d", actuatorStates[DEHUMIDIFIER]);
 				 break;
 			 case FL_INJECTOR_ACTUATOR_CHANGE:
 				 actuatorStates[FL_INJECTOR] = rbuf.pulse.value.sival_int;
-				 logString(log_file, "Changing air conditioner actuator to state %d", actuatorStates[FL_INJECTOR]);
+				 logString(log_file, "Changing fl injector actuator to state %d", actuatorStates[FL_INJECTOR]);
 				 break;
 			 case AS_INJECTOR_ACTUATOR_CHANGE:
 				 actuatorStates[AS_INJECTOR] = rbuf.pulse.value.sival_int;
-				 logString(log_file, "Changing air conditioner actuator to state %d", actuatorStates[AS_INJECTOR]);
+				 logString(log_file, "Changing as injector actuator to state %d", actuatorStates[AS_INJECTOR]);
 				 break;
 			 default:
 				 logString(log_file, "Unknown pulse received. Code: %d\n", rbuf.pulse.code);
