@@ -272,7 +272,7 @@ int main(void) {
 			 case TEMP_DATA:
 				 //printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
 				 temp = msg.value.sival_int/100.0f;
-				 fprintf(temp_metrics, "%.2f,%d,%d,%s,%s\n", temp, MAX_TEMP, MIN_TEMP, ac_state, heater_state);
+				 fprintf(temp_metrics, "%.2f,%d,%d,%d,%d\n", temp, MAX_TEMP, MIN_TEMP, strcmp(ac_state,"ON") ? 0 : 1, strcmp(heater_state,"ON") ? 0 : 1);
 				 break;
 			 case TEMP_AC:
 				 if(msg.value.sival_int == ON){
@@ -282,7 +282,7 @@ int main(void) {
 					strcpy(ac_state, "OFF");
 					//printf("Pulse received:\n[DISPLAY] AC has turned off\n");
 				 }
-				 fprintf(temp_metrics, "%.2f,%d,%d,%s,%s\n", temp, MAX_TEMP, MIN_TEMP, ac_state, heater_state);
+				 //fprintf(temp_metrics, "%.2f,%d,%d,%d,%d\n", temp, MAX_TEMP, MIN_TEMP, strcmp(ac_state,"ON") ? 0 : 1, strcmp(heater_state,"ON") ? 0 : 1);
 
 				 break;
 			 case TEMP_HEATER:
@@ -294,12 +294,12 @@ int main(void) {
 					strcpy(heater_state, "OFF");
 					// printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
 				 }
-				 fprintf(temp_metrics, "%.2f,%d,%d,%s,%s\n", temp, MAX_TEMP, MIN_TEMP, ac_state, heater_state);
+				 //fprintf(temp_metrics, "%.2f,%d,%d,%d,%d\n", temp, MAX_TEMP, MIN_TEMP, strcmp(ac_state,"ON") ? 0 : 1, strcmp(heater_state,"ON") ? 0 : 1);
 			 	 break;
 			 case HUMID_DATA:
 			 	 //printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
 			 	 humid = msg.value.sival_int/100.0f;
-				 fprintf(humid_metrics, "%.2f,%d,%d,%s,%s\n", humid, MAX_HUMID, MIN_HUMID, humidifier, dehumidifier);
+				 fprintf(humid_metrics, "%.2f,%d,%d,%d,%d\n", humid, MAX_HUMID, MIN_HUMID, strcmp(humidifier,"ON") ? 0 : 1, strcmp(dehumidifier,"ON") ? 0 : 1);
 			 	 break;
 			 case HUMID_DEHUMIDIFIER:
 			 	 if(msg.value.sival_int == ON){
@@ -309,7 +309,7 @@ int main(void) {
 			 		strcpy(dehumidifier, "OFF");
 			 		//printf("Pulse received:\n[DISPLAY] AC has turned off\n");
 			 	 }
-			 	fprintf(humid_metrics, "%.2f,%d,%d,%s,%s\n", humid, MAX_HUMID, MIN_HUMID, humidifier, dehumidifier);
+				 //fprintf(humid_metrics, "%.2f,%d,%d,%d,%d\n", humid, MAX_HUMID, MIN_HUMID, strcmp(humidifier,"ON") ? 0 : 1, strcmp(dehumidifier,"ON") ? 0 : 1);
 			  	break;
 			  case HUMID_HUMIDIFIER:
 			 	 //heater_state = sg.value.sival_int;
@@ -320,12 +320,12 @@ int main(void) {
 			 		strcpy(humidifier, "OFF");
 			 		// printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
 			 	 }
-			 	 fprintf(humid_metrics, "%.2f,%d,%d,%s,%s\n", humid, MAX_HUMID, MIN_HUMID, humidifier, dehumidifier);
+				 //fprintf(humid_metrics, "%.2f,%d,%d,%d,%d\n", humid, MAX_HUMID, MIN_HUMID, strcmp(humidifier,"ON") ? 0 : 1, strcmp(dehumidifier,"ON") ? 0 : 1);
 			  	 break;
 			 case PH_DATA:
 				 //printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
 				 ph = msg.value.sival_int/100.0f;
-				 fprintf(ph_metrics, "%.2f,%d,%d,%s,%s\n", ph, MAX_PH, MIN_PH, fl_injector, as_injector);
+				 fprintf(ph_metrics, "%.2f,%d,%d,%d,%d\n", ph, MAX_PH, MIN_PH, strcmp(fl_injector,"ON") ? 0 : 1, strcmp(as_injector,"ON") ? 0 : 1);
 				 break;
 			 case PH_AS_INJECTOR:
 				 if(msg.value.sival_int == ON){
@@ -335,8 +335,8 @@ int main(void) {
 					strcpy(as_injector, "OFF");
 					//printf("Pulse received:\n[DISPLAY] AC has turned off\n");
 				 }
-				 fprintf(ph_metrics, "%.2f,%d,%d,%s,%s\n", ph, MAX_PH, MIN_PH, fl_injector, as_injector);
-				break;
+				 //fprintf(ph_metrics, "%.2f,%d,%d,%d,%d\n", ph, MAX_PH, MIN_PH, strcmp(fl_injector,"ON") ? 0 : 1, strcmp(as_injector,"ON") ? 0 : 1);
+ 				 break;
 			  case PH_FL_INJECTOR:
 				 //heater_state = sg.value.sival_int;
 				 if(msg.value.sival_int == ON){
@@ -346,7 +346,7 @@ int main(void) {
 					strcpy(fl_injector, "OFF");
 					// printf("Pulse received:\n[DISPLAY] Heater has turned off\n");
 				 }
-				 fprintf(ph_metrics, "%.2f,%d,%d,%s,%s\n", ph, MAX_PH, MIN_PH, fl_injector, as_injector);
+				 //fprintf(ph_metrics, "%.2f,%d,%d,%d,%d\n", ph, MAX_PH, MIN_PH, strcmp(fl_injector,"ON") ? 0 : 1, strcmp(as_injector,"ON") ? 0 : 1);
 				 break;
 			 default:
 				 printf("Unexpected pulse code: %d", msg.code);
