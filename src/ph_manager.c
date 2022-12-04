@@ -61,14 +61,14 @@ int main(int argc, char **argv){
 	}
 
 	/* Connect to the as_injector server */
-	fl_injector_coid = name_open(FL_INJECTOR_ACTUATOR_CHANGE, 0);
+	fl_injector_coid = name_open(FL_INJECTOR_ACTUATOR_SERVER, 0);
 	if (fl_injector_coid == -1){
 		logString(log_file, "Failed to connect to fl_injector server: %s", strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 
 	/* Connect to the fl_injector server */
-	as_injector_coid = name_open(AS_INJECTOR_ACTUATOR_CHANGE, 0);
+	as_injector_coid = name_open(AS_INJECTOR_ACTUATOR_SERVER, 0);
 	if (as_injector_coid == -1){
 		logString(log_file, "Failed to connect to as_injector server: %s", strerror(errno));
 		exit(EXIT_FAILURE);
