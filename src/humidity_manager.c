@@ -101,7 +101,7 @@ int main(int argc, char **argv){
 		/*****************************************
 		 * CHECK THRESHOLDS AND ACTUATORS
 		 *****************************************/
-		if(resp.data > MAX_HUMID){
+		if(resp.data > MAX_HUMID*100){
 			logString(log_file, "Above max humid");
 
 
@@ -143,7 +143,7 @@ int main(int argc, char **argv){
 
 
 
-		} else if (resp.data < MIN_HUMID){
+		} else if (resp.data < MIN_HUMID*100){
 			logString(log_file, "Below min humid");
 
 

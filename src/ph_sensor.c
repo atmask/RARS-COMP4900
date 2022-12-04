@@ -118,6 +118,7 @@ void *readData(void *args){
 		 * N.B. Scanf reads up the whitespace
 		 * */
 		fscanf(stdin, "%f", &ph_data);
+		ph_data = ph_data * 100;
 		logString(log_file, "Read data: %f", ph_data);
 
 		pthread_mutex_unlock(&ph_data_mutex);

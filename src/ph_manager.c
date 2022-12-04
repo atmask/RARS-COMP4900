@@ -101,7 +101,7 @@ int main(int argc, char **argv){
 		/*****************************************
 		 * CHECK THRESHOLDS AND ACTUATORS
 		 *****************************************/
-		if(resp.data > MAX_PH){
+		if(resp.data > MAX_PH*100){
 			logString(log_file, "Above max ph");
 
 
@@ -143,7 +143,7 @@ int main(int argc, char **argv){
 
 
 
-		} else if (resp.data < MIN_PH){
+		} else if (resp.data < MIN_PH*100){
 			logString(log_file, "Below min ph");
 
 

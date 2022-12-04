@@ -93,7 +93,7 @@ int main(int argc, char **argv){
 		/*****************************************
 		 * CHECK THRESHOLDS AND ACTUATORS
 		 *****************************************/
-		if(resp.data > MAX_TEMP){
+		if(resp.data > MAX_TEMP*100){
 			logString(log_file, "Above max temp");
 
 
@@ -135,7 +135,7 @@ int main(int argc, char **argv){
 
 
 
-		} else if (resp.data < MIN_TEMP){
+		} else if (resp.data < MIN_TEMP*100){
 			logString(log_file, "Below min temp");
 
 
