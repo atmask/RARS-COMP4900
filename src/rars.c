@@ -158,7 +158,7 @@ int main(void) {
 		exit(EXIT_FAILURE);
 	}
 	char *as_injector_args[] = {"/tmp/as_injector_actuator", NULL};
-	rars_pids[9] = spawn("/tmp/humidifier_actuator", 0, NULL, NULL, as_injector_args, NULL);
+	rars_pids[9] = spawn("/tmp/as_injector_actuator", 0, NULL, NULL, as_injector_args, NULL);
 	if(rars_pids[9] == -1){
 		perror("Failed to spawn aluminum sulfate injector actuator");
 		exit(EXIT_FAILURE);
