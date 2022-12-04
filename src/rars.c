@@ -217,7 +217,7 @@ int main(void) {
 	humid_metrics = fopen("/tmp/humid_metrics.csv", "w");
 	fprintf(humid_metrics, "humidity,max,min,humidifier,de-humidifier\n");
 
-	//humidity
+	//ph
 	float ph;
 	char fl_injector[8];
 	char as_injector[8];
@@ -271,7 +271,7 @@ int main(void) {
 			 	 break;
 			 case TEMP_DATA:
 				 //printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
-				 temp = msg.value.sival_int;
+				 temp = msg.value.sival_int/100.0f;
 				 fprintf(temp_metrics, "%.2f,%d,%d,%s,%s\n", temp, MAX_TEMP, MIN_TEMP, ac_state, heater_state);
 				 break;
 			 case TEMP_AC:
@@ -298,7 +298,7 @@ int main(void) {
 			 	 break;
 			 case HUMID_DATA:
 			 	 //printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
-			 	 humid = msg.value.sival_int;
+			 	 humid = msg.value.sival_int/100.0f;
 				 fprintf(humid_metrics, "%.2f,%d,%d,%s,%s\n", humid, MAX_HUMID, MIN_HUMID, humidifier, dehumidifier);
 			 	 break;
 			 case HUMID_DEHUMIDIFIER:
@@ -324,7 +324,7 @@ int main(void) {
 			  	 break;
 			 case PH_DATA:
 				 //printf("Pulse received:\n[DISPLAY] Temperature Sensor: %d\n", msg.value);
-				 ph = msg.value.sival_int;
+				 ph = msg.value.sival_int/100.0f;
 				 fprintf(ph_metrics, "%.2f,%d,%d,%s,%s\n", ph, MAX_PH, MIN_PH, fl_injector, as_injector);
 				 break;
 			 case PH_AS_INJECTOR:
