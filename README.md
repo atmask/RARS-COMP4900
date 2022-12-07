@@ -1,9 +1,9 @@
 # RARS-COMP4900
 
 ## Contributors
-Ben Mask
-Andrew Heron
-Sebastian Navas Chaparro
+Ben Mask \
+Andrew Heron \
+Sebastian Navas Chaparro \
 Massimo Gillis
 
 ## Running
